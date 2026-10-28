@@ -1,0 +1,5 @@
+_local.html
+node_modules/
+*.log
+*.png
+__pycache__/

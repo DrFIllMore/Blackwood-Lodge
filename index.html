@@ -526,6 +526,54 @@ canvas#sc{width:100%;height:100%;display:block}
 
 /* guests now stand in the rooms; the card strip goes */
 .folk3{display:none!important}
+
+/* ---------- moving through the house ---------- */
+.doors3,#doors3{display:none!important}
+.nav3{position:absolute;inset:0;z-index:5;pointer-events:none}
+.nav3 button{pointer-events:auto;position:absolute;border:0;padding:0;cursor:pointer;font:inherit;color:var(--wh);background:none}
+.na3{transform:translate(-50%,-100%);display:flex;flex-direction:column;align-items:center}
+.na3 span{display:block;background:#0c0c0fe6;border:2px solid var(--wh);padding:5px 12px 4px;text-align:center;box-shadow:4px 4px 0 var(--red)}
+.na3 svg{width:26px;height:18px;margin-top:3px;fill:none;stroke:var(--red);stroke-width:5}
+.nav3 b{display:block;font:400 21px/1 var(--bb);letter-spacing:.04em;white-space:nowrap}
+.nav3 i{display:block;font:700 9px/1.2 var(--in);font-style:normal;letter-spacing:.12em;color:var(--gold);margin-top:2px;white-space:nowrap}
+.ne3{display:flex;align-items:center}.ne3.l{left:0}.ne3.r{right:0;flex-direction:row-reverse}
+.ne3 em{width:38px;height:64px;background:var(--red);display:flex;align-items:center;justify-content:center}
+.ne3.l em{clip-path:polygon(0 0,100% 12%,100% 88%,0 100%)}.ne3.r em{clip-path:polygon(0 12%,100% 0,100% 100%,0 88%)}
+.ne3 em svg{width:18px;height:26px;fill:none;stroke:#fff;stroke-width:4}
+.ne3 span{display:block;background:#0c0c0fe6;padding:5px 10px 4px;border:2px solid var(--wh);text-align:left}.ne3.l span{border-left:0}.ne3.r span{border-right:0;text-align:right}
+.nb3{left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:7px;background:#0c0c0fd9!important;border:2px solid #ffffff99!important;padding:4px 12px 3px!important;white-space:nowrap}
+.nb3 svg{width:16px;height:12px;fill:none;stroke:var(--red);stroke-width:3.5}.nb3 b{font-size:18px}.nb3 i{color:#ffffff99;margin:0}
+.nav3.go button{opacity:.3;pointer-events:none}
+.nav3 button:active{filter:brightness(1.3)}
+/* where you are */
+.rp3{display:inline-flex;align-items:center;gap:8px;margin-top:8px;pointer-events:none}
+.rp3 b{display:inline-block;background:#0c0c0f;border:2px solid var(--wh);border-left:0;padding:4px 16px 3px 14px;transform:skewX(-10deg);box-shadow:4px 4px 0 var(--red);font:400 26px/1 var(--bb);letter-spacing:.04em;color:var(--wh)}
+.rp3 i{font:700 10px var(--in);font-style:normal;letter-spacing:.12em;color:#ffffffc8;text-shadow:0 1px 3px #000}
+#watch3 .tsub3{display:block;margin-top:5px}
+#play.talking .ui3 .rp3{visibility:hidden}
+.arr3{position:absolute;inset:0;z-index:15;pointer-events:none;background:#0c0c0f80;animation:arr3 .3s ease-out both}
+.arr3 .band{position:absolute;left:-20px;right:-20px;top:36%;height:150px;background:var(--red);transform:skewY(-6deg);box-shadow:0 10px 0 #000}
+.arr3 .tx{position:absolute;left:0;right:0;top:calc(36% - 8px);text-align:center;color:#fff}
+.arr3 small{display:block;font:800 12px var(--in);letter-spacing:.3em;color:#ffd0d6}
+.arr3 b{display:block;font:400 clamp(48px,17vw,78px)/.95 var(--bb);letter-spacing:.02em;text-shadow:5px 5px 0 #0c0c0f;padding:0 12px}
+.arr3 i{display:block;font:600 13px var(--in);font-style:normal;margin-top:6px}
+.arr3.out{transition:opacity .35s;opacity:0}
+@keyframes arr3{from{transform:translateX(-30px)}to{transform:none}}
+/* found it */
+.rv3{position:absolute;inset:0;z-index:25;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 22px;text-align:center;color:#fff;cursor:pointer;background:radial-gradient(circle at 50% 40%,#0c0c0fd0,#0c0c0ffa 70%);animation:rv3 .3s ease-out both;overflow:hidden}
+.rv3 .rays{position:absolute;left:50%;top:40%;width:820px;height:820px;margin:-410px 0 0 -410px;background:repeating-conic-gradient(#ffc83d14 0 6deg,transparent 6deg 22.5deg);animation:rays3 18s linear infinite;pointer-events:none}
+.rv3 .tag{position:relative;background:var(--gold);color:var(--k);font:400 22px var(--bb);letter-spacing:.2em;padding:4px 14px 2px;transform:skewX(-10deg)}
+.rv3 .disc{position:relative;width:270px;height:270px;max-width:68vw;max-height:68vw;margin:16px 0 18px;border-radius:50%;background:radial-gradient(circle,#2a2a36,#121218 70%);border:4px solid #fff;box-shadow:8px 8px 0 var(--red);display:flex;align-items:center;justify-content:center;animation:pop3 .45s cubic-bezier(.2,1.4,.4,1) both}
+.rv3 .disc svg{width:84%;height:84%}
+.rv3 .nm{position:relative;font:400 clamp(36px,11vw,54px)/1 var(--bb);letter-spacing:.03em;text-shadow:4px 4px 0 var(--red)}
+.rv3 p{position:relative;font:500 15px/1.45 var(--in);color:#ffffffd8;margin:10px 0 0;max-width:320px}
+.rv3 em{position:relative;margin-top:12px;border:2px solid #ffffff66;padding:4px 10px;font:700 10px var(--in);font-style:normal;letter-spacing:.12em;color:var(--gold)}
+.rv3 small{position:absolute;left:0;right:0;bottom:92px;font:700 11px var(--in);letter-spacing:.2em;color:#ffffff88}
+.rv3.out{transition:opacity .45s;opacity:0}
+@keyframes rv3{from{transform:scale(1.04)}to{transform:none}}@keyframes pop3{from{transform:scale(.3) rotate(-20deg)}to{transform:none}}@keyframes rays3{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.rv3,.rv3 .disc,.rv3 .rays,.arr3{animation:none}}
+.ne3.alt,.na3{display:none}
+#watch3{white-space:nowrap}.rp3 b,.rp3 i{white-space:nowrap}
 </style>
 <div id="app"><div class="scene" id="title" hidden></div><div class="scene" id="home"></div><div class="scene" id="play" hidden></div><div class="toast" id="toast"></div></div>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
@@ -4640,6 +4688,63 @@ root.BODY={bodyScene,woundClose,WOUND};
 })(typeof window!=='undefined'?window:globalThis);
 if(typeof module!=='undefined')module.exports=globalThis.BODY;
 
+/* Blackwood Lodge — items, drawn in the game's ink style for the "found it" reveal. ITEMS.svg(id,size) */
+(function(root){
+const K='#0c0c0f';
+const ht=`<pattern id="ih" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(30)"><circle cx="3" cy="3" r="1.4" fill="${K}"/></pattern>`;
+const ART={
+ crowbar:`<g transform="translate(200 200) scale(1.12) translate(-200 -200) rotate(-38 200 200)"><path d="M70 194 L300 194 C324 194 340 180 344 160 C350 130 336 104 310 96 L298 122 C314 128 318 148 312 158 C308 164 300 166 292 166 L70 166 Z" fill="#3a3f4a" stroke="${K}" stroke-width="8" stroke-linejoin="round"/>
+<path d="M70 166 L48 152 L38 180 L48 206 L70 194 Z" fill="#3a3f4a" stroke="${K}" stroke-width="8" stroke-linejoin="round"/><path d="M80 174 L290 174" stroke="#9aa3b4" stroke-width="5" stroke-linecap="round"/>
+<path d="M300 182 C320 180 330 166 330 150" stroke="#9aa3b4" stroke-width="4" fill="none" stroke-linecap="round"/><path d="M80 184 L292 184 L292 186 L80 186 Z" fill="url(#ih)"/><path d="M120 168 L140 186M200 168 L220 186" stroke="#8a2a1a" stroke-width="5" opacity=".7"/></g>`,
+ opener:`<g transform="rotate(-30 200 200)"><path d="M60 200 L250 188 L250 212 Z" fill="#c8ccd4" stroke="${K}" stroke-width="7" stroke-linejoin="round"/><path d="M70 200 L246 194" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
+<rect x="246" y="178" width="22" height="44" rx="4" fill="#d9b25e" stroke="${K}" stroke-width="7"/><path d="M268 186 C300 180 330 186 344 200 C330 214 300 220 268 214 Z" fill="#b8913e" stroke="${K}" stroke-width="7" stroke-linejoin="round"/>
+<path d="M280 192 C300 190 318 194 328 200" stroke="#f2d98a" stroke-width="4" fill="none" stroke-linecap="round"/><circle cx="352" cy="200" r="12" fill="#d9b25e" stroke="${K}" stroke-width="6"/></g>`,
+ button:`<circle cx="200" cy="200" r="104" fill="#2f6a3e" stroke="${K}" stroke-width="9"/><circle cx="200" cy="200" r="78" fill="#3f7a4c" stroke="${K}" stroke-width="5"/><path d="M128 160 C150 120 196 104 236 116" stroke="#8fc29a" stroke-width="9" fill="none" stroke-linecap="round"/>
+<g fill="${K}"><circle cx="178" cy="178" r="12"/><circle cx="222" cy="178" r="12"/><circle cx="178" cy="222" r="12"/><circle cx="222" cy="222" r="12"/></g>
+<path d="M178 178 C200 200 210 230 250 270 C270 290 300 296 320 310" stroke="#c9b48a" stroke-width="5" fill="none"/><path d="M222 222 C250 250 262 280 288 300" stroke="#c9b48a" stroke-width="4" fill="none"/>
+<path d="M280 280 L340 300 L330 340 L270 326 Z" fill="#2f6a3e" stroke="${K}" stroke-width="6" stroke-linejoin="round"/><path d="M286 292 L330 306M282 306 L326 320" stroke="#1c4426" stroke-width="3"/><path d="M200 278 C240 270 270 244 280 210 L282 270 Z" fill="url(#ih)" opacity=".5"/>`,
+ matches:`<g transform="rotate(-12 200 200)"><rect x="110" y="140" width="190" height="120" rx="6" fill="#c41a30" stroke="${K}" stroke-width="8"/><rect x="110" y="140" width="190" height="34" fill="#f1ede4" stroke="${K}" stroke-width="6"/><rect x="110" y="226" width="190" height="34" fill="#f1ede4" stroke="${K}" stroke-width="6"/>
+<path d="M150 200 L260 200" stroke="#ffc83d" stroke-width="10" stroke-linecap="round"/><path d="M300 150 L350 100" stroke="${K}" stroke-width="12" stroke-linecap="round"/><path d="M300 150 L350 100" stroke="#e8d2a0" stroke-width="6" stroke-linecap="round"/><circle cx="354" cy="96" r="10" fill="#7a1a1a" stroke="${K}" stroke-width="5"/></g>`,
+ torch:`<g transform="rotate(-30 200 200)"><rect x="90" y="176" width="190" height="52" rx="10" fill="#2a2e38" stroke="${K}" stroke-width="8"/><path d="M280 168 L330 150 L330 254 L280 236 Z" fill="#3a3f4a" stroke="${K}" stroke-width="8" stroke-linejoin="round"/><ellipse cx="330" cy="202" rx="10" ry="50" fill="#fff4c8" stroke="${K}" stroke-width="6"/>
+<path d="M100 186 L270 186" stroke="#7a8294" stroke-width="5" stroke-linecap="round"/><rect x="150" y="166" width="40" height="14" rx="3" fill="#c41a30" stroke="${K}" stroke-width="5"/><g stroke="${K}" stroke-width="3"><path d="M110 196 L110 218M124 196 L124 218M138 196 L138 218"/></g><path d="M340 160 L400 130 L400 280 L340 246 Z" fill="#fff4c8" opacity=".35"/></g>`,
+ lockpicks:`<g transform="rotate(-8 200 200)"><path d="M70 150 L320 150 C340 150 350 170 340 186 L330 250 C326 262 314 268 300 268 L80 268 C66 268 58 256 60 242 Z" fill="#5a2a1e" stroke="${K}" stroke-width="8" stroke-linejoin="round"/>
+<path d="M70 150 L320 150 L314 176 L76 176 Z" fill="#7a3a28" stroke="${K}" stroke-width="5"/><g stroke="${K}" stroke-width="10" stroke-linecap="round"><path d="M110 200 L110 120M150 200 L150 100M190 200 L190 118M230 200 L230 96M270 200 L270 124"/></g>
+<g stroke="#c8ccd4" stroke-width="5" stroke-linecap="round"><path d="M110 200 L110 120 L122 112M150 200 L150 100 L160 108 L150 116M190 200 L190 118 L202 124M230 200 L230 96 C242 96 244 108 232 110M270 200 L270 124 L284 116 L294 124"/></g><path d="M80 236 L300 236" stroke="#3a1a10" stroke-width="4"/></g>`,
+ scalpel:`<g transform="rotate(-35 200 200)"><rect x="70" y="188" width="190" height="26" rx="8" fill="#c8ccd4" stroke="${K}" stroke-width="7"/><g stroke="#8a909c" stroke-width="3"><path d="M90 194 L90 208M104 194 L104 208M118 194 L118 208M132 194 L132 208M146 194 L146 208"/></g>
+<path d="M260 190 L300 188 C330 186 352 196 356 204 C340 214 310 216 300 214 L260 212 Z" fill="#e8ecf2" stroke="${K}" stroke-width="7" stroke-linejoin="round"/><path d="M270 198 L340 202" stroke="#fff" stroke-width="3"/></g>`,
+ flask:`<path d="M120 120 L280 120 C300 120 310 134 310 152 L310 300 C310 320 296 332 276 332 L124 332 C104 332 90 320 90 300 L90 152 C90 134 100 120 120 120 Z" fill="#c8ccd4" stroke="${K}" stroke-width="8"/><rect x="170" y="84" width="60" height="40" rx="6" fill="#9aa0ac" stroke="${K}" stroke-width="7"/><rect x="160" y="70" width="80" height="22" rx="5" fill="#d9b25e" stroke="${K}" stroke-width="6"/>
+<path d="M110 160 C110 140 120 136 136 136 L136 310 C120 310 110 300 110 290 Z" fill="#fff" opacity=".6"/><path d="M250 136 L292 136 L292 316 L250 316 Z" fill="url(#ih)" opacity=".5"/><rect x="150" y="200" width="100" height="56" rx="6" fill="#5a2a1e" stroke="${K}" stroke-width="5"/><path d="M168 228 L232 228" stroke="#d9b25e" stroke-width="4"/>`,
+ knife:`<g transform="rotate(-35 200 200)"><path d="M70 186 L210 186 L210 214 L70 214 C58 214 52 206 52 200 C52 194 58 186 70 186 Z" fill="#4a2e1c" stroke="${K}" stroke-width="7"/><g fill="#c8ccd4" stroke="${K}" stroke-width="3"><circle cx="96" cy="200" r="6"/><circle cx="140" cy="200" r="6"/><circle cx="184" cy="200" r="6"/></g>
+<rect x="208" y="180" width="14" height="40" fill="#9aa0ac" stroke="${K}" stroke-width="5"/><path d="M222 186 L340 186 C350 196 352 206 346 214 L222 214 Z" fill="#d8dce4" stroke="${K}" stroke-width="7" stroke-linejoin="round"/><path d="M228 194 L336 194" stroke="#fff" stroke-width="3"/></g>`,
+ screwdriver:`<g transform="rotate(-38 200 200)"><path d="M60 180 C60 168 70 162 80 162 L170 162 C182 162 190 170 190 182 L190 218 C190 230 182 238 170 238 L80 238 C70 238 60 232 60 220 Z" fill="#c41a30" stroke="${K}" stroke-width="8"/><g stroke="#8a1020" stroke-width="5"><path d="M86 172 L86 228M112 170 L112 230M138 170 L138 230M164 172 L164 228"/></g><path d="M74 176 L180 176" stroke="#ff8a8a" stroke-width="5" opacity=".6"/>
+<rect x="190" y="192" width="140" height="16" fill="#c8ccd4" stroke="${K}" stroke-width="6"/><path d="M330 190 L352 196 L352 204 L330 210 Z" fill="#9aa0ac" stroke="${K}" stroke-width="5"/></g>`,
+ hairpins:`<g fill="none" stroke-linecap="round"><g stroke="${K}" stroke-width="12"><path d="M110 120 L110 300 C110 316 134 316 134 300 L134 140 C134 128 146 128 146 140 L146 290"/><path d="M200 100 L200 290 C200 306 224 306 224 290 L224 120 C224 108 236 108 236 120 L236 280" transform="rotate(10 220 200)"/><path d="M280 130 L280 300 C280 316 304 316 304 300 L304 150 C304 138 316 138 316 150 L316 290" transform="rotate(-12 300 220)"/></g>
+<g stroke="#a9b0bc" stroke-width="6"><path d="M110 120 L110 300 C110 316 134 316 134 300 L134 140 C134 128 146 128 146 140 L146 290"/><path d="M200 100 L200 290 C200 306 224 306 224 290 L224 120 C224 108 236 108 236 120 L236 280" transform="rotate(10 220 200)"/><path d="M280 130 L280 300 C280 316 304 316 304 300 L304 150 C304 138 316 138 316 150 L316 290" transform="rotate(-12 300 220)"/></g></g><g fill="#ffc83d" stroke="${K}" stroke-width="4"><circle cx="110" cy="116" r="12"/></g>`,
+ brandy:`<path d="M170 70 L230 70 L230 140 C280 160 300 200 300 250 L300 320 C300 336 290 344 274 344 L126 344 C110 344 100 336 100 320 L100 250 C100 200 120 160 170 140 Z" fill="#7a3a12" stroke="${K}" stroke-width="8" stroke-linejoin="round"/><rect x="164" y="52" width="72" height="26" rx="5" fill="#2a1a10" stroke="${K}" stroke-width="6"/>
+<path d="M100 260 L300 260 L300 320 C300 336 290 344 274 344 L126 344 C110 344 100 336 100 320 Z" fill="#b8641e" stroke="${K}" stroke-width="6"/><rect x="134" y="210" width="132" height="70" rx="6" fill="#f1ede4" stroke="${K}" stroke-width="5"/><path d="M152 236 L248 236M162 256 L238 256" stroke="#8a3a12" stroke-width="5"/><path d="M122 200 C122 180 136 168 150 162 L150 320 L122 320 Z" fill="#fff" opacity=".25"/>`,
+ magnifier:`<g transform="rotate(-35 200 200)"><circle cx="160" cy="200" r="86" fill="#cfe6f5" fill-opacity=".55" stroke="${K}" stroke-width="10"/><circle cx="160" cy="200" r="86" fill="none" stroke="#d9b25e" stroke-width="5"/><path d="M106 160 C120 132 150 120 176 124" stroke="#fff" stroke-width="9" fill="none" stroke-linecap="round"/>
+<rect x="246" y="186" width="34" height="28" fill="#d9b25e" stroke="${K}" stroke-width="7"/><path d="M280 184 L370 184 C380 184 386 192 386 200 C386 208 380 216 370 216 L280 216 Z" fill="#6a4a2a" stroke="${K}" stroke-width="7"/><path d="M290 192 L370 192" stroke="#a87a4a" stroke-width="4"/></g>`,
+ poker:`<g transform="rotate(-50 200 200)"><path d="M40 200 L300 200" stroke="${K}" stroke-width="20" stroke-linecap="round"/><path d="M40 200 L300 200" stroke="#2a2a30" stroke-width="10" stroke-linecap="round"/><path d="M300 200 L350 176" stroke="${K}" stroke-width="18" stroke-linecap="round"/><path d="M300 200 L350 176" stroke="#2a2a30" stroke-width="9" stroke-linecap="round"/>
+<circle cx="40" cy="200" r="20" fill="#c9a24a" stroke="${K}" stroke-width="7"/><circle cx="40" cy="200" r="7" fill="#7a5a1a"/><path d="M60 194 L290 194" stroke="#7a7a86" stroke-width="3"/><path d="M296 190 C310 196 324 194 338 186" stroke="#7a0a12" stroke-width="7" stroke-linecap="round"/></g>`,
+ kitchenknife:`<g transform="rotate(-35 200 200)"><path d="M60 186 L180 186 L180 214 L60 214 C48 214 42 206 42 200 C42 194 48 186 60 186 Z" fill="#1c1a20" stroke="${K}" stroke-width="7"/><g fill="#c8ccd4" stroke="${K}" stroke-width="3"><circle cx="86" cy="200" r="6"/><circle cx="130" cy="200" r="6"/></g><rect x="178" y="180" width="12" height="40" fill="#9aa0ac" stroke="${K}" stroke-width="5"/>
+<path d="M190 182 L330 186 C352 188 362 196 362 204 C340 214 300 218 190 218 Z" fill="#dfe3ea" stroke="${K}" stroke-width="7" stroke-linejoin="round"/><path d="M200 190 L340 194" stroke="#fff" stroke-width="3"/><path d="M290 200 C310 204 330 206 352 204" stroke="#7a0a12" stroke-width="7" stroke-linecap="round"/></g>`,
+ cord:`<path d="M90 120 C140 80 220 100 230 160 C240 220 160 230 160 280 C160 330 240 340 300 300" stroke="${K}" stroke-width="22" fill="none" stroke-linecap="round"/><path d="M90 120 C140 80 220 100 230 160 C240 220 160 230 160 280 C160 330 240 340 300 300" stroke="#8a1a3a" stroke-width="13" fill="none" stroke-linecap="round"/>
+<path d="M90 120 C140 80 220 100 230 160 C240 220 160 230 160 280 C160 330 240 340 300 300" stroke="#d9b25e" stroke-width="3" stroke-dasharray="6 10" fill="none"/><path d="M300 300 L330 290 L346 320 L340 352 L320 360 L300 330 Z" fill="#d9b25e" stroke="${K}" stroke-width="6" stroke-linejoin="round"/><g stroke="#b8913e" stroke-width="3"><path d="M312 312 L326 350M322 306 L336 344"/></g><circle cx="90" cy="120" r="14" fill="#d9b25e" stroke="${K}" stroke-width="6"/>`,
+ wrench:`<g transform="rotate(-40 200 200)"><rect x="60" y="184" width="210" height="34" rx="6" fill="#8a2a1a" stroke="${K}" stroke-width="8"/><path d="M76 194 L256 194" stroke="#c4583a" stroke-width="4"/>
+<path d="M266 160 L330 160 L330 196 L296 196 L296 206 L340 206 L340 244 L266 244 Z" fill="#5a5e6a" stroke="${K}" stroke-width="8" stroke-linejoin="round"/><g stroke="${K}" stroke-width="3"><path d="M276 214 L290 214M276 224 L290 224M276 234 L290 234"/></g><path d="M300 160 L312 150" stroke="#7a0a12" stroke-width="6"/></g>`,
+ bookend:`<path d="M120 320 L300 320 L300 344 L120 344 Z" fill="#6a4a1e" stroke="${K}" stroke-width="7"/><path d="M150 320 C140 260 150 200 190 160 C210 140 240 130 260 140 C280 150 284 176 270 196 C290 210 296 250 280 290 L276 320 Z" fill="#a8742a" stroke="${K}" stroke-width="8" stroke-linejoin="round"/>
+<path d="M190 170 C206 152 228 146 246 152" stroke="#e2b25a" stroke-width="6" fill="none" stroke-linecap="round"/><circle cx="246" cy="168" r="6" fill="${K}"/><path d="M228 300 L270 300 L272 320 L230 320 Z" fill="url(#ih)" opacity=".6"/><path d="M160 300 C168 290 176 296 172 310" stroke="#7a0a12" stroke-width="7" fill="none"/>`,
+ fibres:`<rect x="110" y="110" width="180" height="180" rx="6" fill="#f1ede4" stroke="${K}" stroke-width="7" transform="rotate(-6 200 200)"/><g fill="none" stroke-linecap="round"><path d="M150 180 C180 160 210 220 250 190" stroke="#2f6a3e" stroke-width="4"/><path d="M160 210 C190 230 220 170 250 220" stroke="#2f6a3e" stroke-width="3"/><path d="M150 240 C190 250 200 200 240 250" stroke="#3f7a4c" stroke-width="3"/><path d="M170 160 C200 200 190 230 220 260" stroke="#1c4426" stroke-width="2.5"/></g>
+<g transform="rotate(30 300 290)"><circle cx="300" cy="290" r="46" fill="#cfe6f5" fill-opacity=".4" stroke="${K}" stroke-width="8"/><rect x="292" y="336" width="16" height="50" fill="#6a4a2a" stroke="${K}" stroke-width="6"/></g>`,
+ letter:`<g transform="rotate(-8 200 200)"><path d="M90 110 L300 110 L320 130 L320 300 L90 300 Z" fill="#f4ecd8" stroke="${K}" stroke-width="8" stroke-linejoin="round"/><path d="M300 110 L300 130 L320 130" fill="#d8ccb0" stroke="${K}" stroke-width="5"/>
+<g stroke="#2a2a46" stroke-width="4" stroke-linecap="round"><path d="M120 150 C150 146 200 150 260 146M120 180 C170 176 230 182 290 176M120 210 C160 206 210 212 270 206M120 240 C150 236 180 240 210 238"/></g><path d="M220 262 C240 250 260 270 280 256" stroke="#2a2a46" stroke-width="4" fill="none"/><path d="M90 200 L320 200" stroke="#c9bd9a" stroke-width="3"/><circle cx="292" cy="272" r="20" fill="#9a1a24" stroke="${K}" stroke-width="5"/></g>`
+};
+function svg(id,size,col){let a=ART[id]||ART.button;if(id==='button'&&col){const C={dark:['#2a2e3a','#3a4054','#7a86a8','#14161f'],pale:['#b8ae9a','#d8d0bf','#f4efe4','#8a8270'],green:['#2f6a3e','#3f7a4c','#8fc29a','#1c4426'],red:['#7a1a24','#a8323e','#e88a92','#4a0a12']}[col];if(C){a=a.split('#2f6a3e').join(C[0]).split('#3f7a4c').join(C[1]).split('#8fc29a').join(C[2]).split('#1c4426').join(C[3])}}
+ return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="${size||240}" height="${size||240}"><defs>${ht}</defs>${a}</svg>`}
+root.ITEMS={svg,ART};
+})(typeof window!=='undefined'?window:globalThis);
+if(typeof module!=='undefined')module.exports=globalThis.ITEMS;
+
 /* ---------- PLAY CONTENT: what the narrator says, and the ways to go at each thing ---------- */
 ROOMS.lobby.n='Front hall';ROOMS.stairs.n='Landing';ROOMS.dining.n='Dining room';ROOMS.r1.n='Blue room';ROOMS.r2.n='Twin room';ROOMS.r3.n='Eaves room';
 /* every search spot: what kind of thing it is (decides the approaches) and what you see when you look at it */
@@ -5264,6 +5369,87 @@ setInterval(()=>{try{if(G&&!G.over&&!P3.talk&&!P3.busy&&$('#play')&&!$('#play').
 const objTap3=objTap;objTap=function(tap){if(String(tap).startsWith('person:')){const sid=tap.slice(7);if(typeof bodyArtClose==='function'&&P3.bodyOn)bodyArtClose();return openTalk(sid)}return objTap3(tap)};
 /* turn views ignore people; they are about the room's things */
 const hiddenHits3=hiddenHits;hiddenHits=function(r,v){const sv=r.hits;r.hits=sv.filter(h=>!String(h.userData.tap).startsWith('person:'));try{return hiddenHits3(r,v)}finally{r.hits=sv}};
+
+/* ---------- moving through the house, knowing where you are, and finding things ---------- */
+/* every connection out of a room, on the side it really lies: a doorway in the picture (screen point in the room's starting view),
+   the left or right edge, or behind you */
+const NAV3={
+ lobby:{porch:{at:[.5,.31],s:'THE FRONT DOOR'},stairs:{side:'R',s:'UP THE STAIRS'},lounge:{side:'L',s:'THROUGH THE ARCH'},dining:{side:'B',s:'ACROSS THE HALL'}},
+ porch:{lobby:{at:[.42,.33],s:'BACK INSIDE'}},
+ lounge:{library:{side:'R',s:'THROUGH THE DOOR'},lobby:{side:'B',s:'THE FRONT HALL'}},
+ library:{study:{at:[.2,.34],s:'DOWN THE CORRIDOR'},lounge:{side:'B',s:'BEHIND YOU'}},
+ study:{library:{side:'L',s:'THE CORRIDOR'},cellar:{side:'R',s:'DOWN THE STEPS'},stairs:{side:'B',s:'THE BACK STAIRS'}},
+ dining:{kitchen:{at:[.5,.23],s:'THE SERVING DOOR'},lobby:{side:'B',s:'BEHIND YOU'}},
+ kitchen:{cellar:{side:'L',s:'DOWN THE STEPS'},boiler:{side:'R',s:'THE BACK PASSAGE'},dining:{side:'B',s:'BEHIND YOU'}},
+ cellar:{kitchen:{side:'L',s:'UP TO THE KITCHEN'},study:{side:'R',s:'UP TO THE STUDY'}},
+ boiler:{kitchen:{side:'B',s:'UP THE STEPS'}},
+ stairs:{r2:{at:[.5,.31],s:'END OF THE HALL'},r1:{at:[.8,.29],s:'THE DOOR ON THE RIGHT'},r3:{side:'L',s:'UNDER THE EAVES'},study:{side:'L',s:'THE BACK STAIRS'},attic:{side:'R',s:'UP THE LADDER'},lobby:{side:'B',s:'DOWN THE STAIRS'}},
+ r1:{stairs:{side:'B',s:'BACK TO THE LANDING'}},r2:{stairs:{side:'B',s:'BACK TO THE LANDING'}},r3:{stairs:{side:'B',s:'BACK TO THE LANDING'}},
+ attic:{stairs:{side:'B',s:'DOWN THE LADDER'}}};
+const FLOOR3={lobby:'GROUND FLOOR',lounge:'GROUND FLOOR',library:'GROUND FLOOR',study:'GROUND FLOOR',dining:'GROUND FLOOR',kitchen:'GROUND FLOOR',porch:'OUTSIDE',cellar:'BELOW STAIRS',boiler:'BELOW STAIRS',stairs:'FIRST FLOOR',r1:'FIRST FLOOR',r2:'FIRST FLOOR',r3:'FIRST FLOOR',attic:'TOP OF THE HOUSE'};
+const N3={room:null,pts:{},last:null};
+function navSpec3(room){const t=NAV3[room]||{},out=[];for(const id of ROOMS[room].adj){out.push(Object.assign({id},t[id]||{side:'B',s:''}))}return out}
+/* turn a screen point in the starting view into a point in the room, once per room */
+function navPts3(r){if(r.navPts)return r.navPts;const T=THREE,w=r.views.wide,cam=GL.cam.clone();cam.position.set(...w.p);cam.lookAt(new T.Vector3(...w.t));cam.fov=w.fov;cam.aspect=GL.cam.aspect;cam.updateProjectionMatrix();cam.updateMatrixWorld();
+  const objs=[];r.scene.traverse(o=>{if(o.isMesh&&o.visible&&!o.userData.tap&&!o.userData.st3)objs.push(o)});const ray=new T.Raycaster(),pts={};
+  for(const sp of navSpec3(r.id))if(sp.at){ray.setFromCamera(new T.Vector2(sp.at[0]*2-1,-sp.at[1]*2+1),cam);const h=ray.intersectObjects(objs,false)[0];
+    pts[sp.id]=h?h.point.clone().add(ray.ray.direction.clone().multiplyScalar(-.15)):ray.ray.at(4,new T.Vector3())}
+  return r.navPts=pts}
+function navHTML3(sp,kind){const nm=ROOMS[sp.id].n.toUpperCase();
+  if(kind==='B')return `<button class="nb3" data-go="${sp.id}" aria-label="Go to ${ROOMS[sp.id].n}"><svg viewBox="0 0 16 12" aria-hidden="true"><path d="M2 3 L8 9 L14 3"/></svg><b>${nm}</b><i>${sp.s||'BEHIND YOU'}</i></button>`;
+  if(kind==='at')return `<button class="na3" data-go="${sp.id}" aria-label="Go to ${ROOMS[sp.id].n}"><span><b>${nm}</b><i>${sp.s}</i></span><svg viewBox="0 0 26 18" aria-hidden="true"><path d="M3 14 L13 4 L23 14"/></svg></button>`;
+  const L=kind==='L';return `<button class="ne3 ${L?'l':'r'}" data-go="${sp.id}" aria-label="Go to ${ROOMS[sp.id].n}"><em><svg viewBox="0 0 18 26" aria-hidden="true"><path d="${L?'M14 3 L4 13 L14 23':'M4 3 L14 13 L4 23'}"/></svg></em><span><b>${nm}</b><i>${sp.s}</i></span></button>`}
+function navBuild3(){let h=$('#nav3');if(!h){$('#view').insertAdjacentHTML('afterend','<div id="nav3" class="nav3"></div>');h=$('#nav3');
+    h.addEventListener('click',e=>{const b=e.target.closest('[data-go]');if(!b)return;e.stopPropagation();if(P3.busy||P3.talk||V.intro||!G||G.over)return;const to=b.dataset.go;h.classList.add('go');goRoom(to)})}
+  const sp=navSpec3(G.room);N3.room=G.room;N3.key=null;
+  h.innerHTML=sp.map(s=>s.at?navHTML3(s,'at')+navHTML3(s,'L').replace('class="ne3 l"','class="ne3 l alt"')+navHTML3(s,'R').replace('class="ne3 r"','class="ne3 r alt"'):navHTML3(s,s.side)).join('');
+  h.classList.remove('go')}
+function navShow3(){if(!G||G.over)return false;if(V.intro||P3.busy||P3.talk||P3.bodyOn)return false;if($('.mid3.choosing'))return false;if($('#scr3host')&&$('#scr3host').childElementCount)return false;if($('#reveal3')||$('#arr3')||$('#tcard')||$('#brief3'))return false;
+  if(GL.close&&!GL.altI)return false;return GL.cur&&GL.cur.id===G.room&&GL.shownRoom===G.room}
+function navTick3(){requestAnimationFrame(navTick3);const h=$('#nav3');if(!G||$('#play').hidden){if(h)h.style.display='none';return}
+  if(G.room!==N3.room||!h)navBuild3();const H=$('#nav3'),on=navShow3();H.style.display=on?'':'none';if(!on)return;
+  const r=GL.cur,vb=$('#view').getBoundingClientRect(),pb=$('#play').getBoundingClientRect(),pts=navPts3(r),T=THREE;
+  /* stack the edge signs, keep them clear of the turn button and the narration */
+  const top0=vb.top-pb.top+vb.height*.40,bot=($('.bot3')?$('.bot3').getBoundingClientRect().top:vb.bottom)-pb.top;
+  let nL=0,nR=0;const sides=[];
+  H.querySelectorAll('[data-go]').forEach(b=>{const id=b.dataset.go,p=pts[id];
+    if(b.classList.contains('na3')){if(!p){b.style.display='none';return}const q=p.clone().project(GL.cam);const x=(q.x+1)/2*vb.width,y=(1-q.y)/2*vb.height;
+      const ok=q.z<1&&x>40&&x<vb.width-40&&y>vb.height*.16&&y<bot-(vb.top-pb.top)-60;b.style.display=ok?'flex':'none';b.dataset.ok=ok?1:0;if(ok){b.style.left=(vb.left-pb.left+x)+'px';b.style.top=(vb.top-pb.top+y)+'px'}
+      else sides.push([id,q.z<1?(q.x<0?'L':'R'):(q.x<0?'R':'L')]);return}
+    if(b.classList.contains('alt'))return;
+    if(b.classList.contains('ne3')){const L=b.classList.contains('l');b.style.top=(top0+(L?nL++:nR++)*76)+'px'}
+    if(b.classList.contains('nb3'))b.style.top=(bot-50)+'px'});
+  /* a doorway turned out of view becomes an edge sign on the side it now lies */
+  H.querySelectorAll('.ne3.alt').forEach(b=>{const s=sides.find(x=>x[0]===b.dataset.go);const want=s&&((s[1]==='L')===b.classList.contains('l'));b.style.display=want?'flex':'none';if(want){const L=b.classList.contains('l');b.style.top=(top0+(L?nL++:nR++)*76)+'px'}})}
+requestAnimationFrame(navTick3);
+/* the room's name: a big card when you walk in, then a bold plate under the clock */
+function arrive3(){if(!G||V.intro||G.room===N3.last)return;N3.last=G.room;$('#arr3')?.remove();
+  $('#play').insertAdjacentHTML('beforeend',`<div class="arr3" id="arr3" aria-hidden="true"><div class="band"></div><div class="tx"><small>${FLOOR3[G.room]||''}</small><b>${ROOMS[G.room].n.toUpperCase()}</b><i>${fmtT(G.time)}</i></div></div>`);
+  setTimeout(()=>{const a=$('#arr3');if(a){a.classList.add('out');setTimeout(()=>a.remove(),400)}},1500)}
+setInterval(()=>{try{if(G&&!G.over&&!$('#play').hidden&&GL.shownRoom===G.room&&!P3.busy)arrive3()}catch(_){}},200);
+const startGame3n=startGame;startGame=function(...a){N3.last=null;N3.room=null;return startGame3n(...a)};
+const playRefresh3=playRefresh;playRefresh=function(){playRefresh3();if(!G||!$('#watch3'))return;const s=$('#watch3 .tsub3');
+  if(s)s.outerHTML=`<span class="rp3"><b>${ROOMS[G.room].n.toUpperCase()}</b><i>${FLOOR3[G.room]||''}</i></span><span class="tsub3">DAWN ${fmtT(G.R.dawn).replace(':00','')}${G.flags.power_out?`<b>${G.light&&G.batt>0?' · TORCH '+Math.round(G.batt)+'%':' · IN THE DARK'}</b>`:''}</span>`};
+refresh=playRefresh;
+/* found it: anything new you pick up comes to the middle of the screen, large and named, then drops into the satchel */
+const TAGS3={lock:'OPENS LOCKS',pry:'PRIES THINGS OPEN',dark:'LIGHT IN THE DARK',read:'READS SMALL DETAILS',body:'READS WOUNDS',talk:'LOOSENS TONGUES',calm:'STEADIES YOUR NERVE',repair:'MENDS THINGS',heavy:'HEAVY'};
+const WART3={poker:'poker',knife:'kitchenknife',cord:'cord',wrench:'wrench',statue:'bookend'};
+function revealList3(ev0,it0){const out=[];
+  for(const it of (G.items||[]).slice(it0)){const t=TOOLS[it.id];if(!t)continue;out.push({art:ITEMS.ART[it.id]?it.id:'opener',name:t.n,d:t.d,tag:'TOOL · '+[...new Set((t.tags||[]).map(x=>TAGS3[x]).filter(Boolean))].join(' · ')})}
+  for(const e of G.ev.slice(ev0)){if(!PHYS.includes(e.id))continue;const art=e.id==='weapon'?WART3[G.M.weapon.id]:e.id==='item'?'button':e.id==='fibres'?'fibres':'letter';
+    out.push({art,col:e.id==='item'?(G.M.sus.find(s=>s.id===G.M.killer)||{}).coat:null,name:e.id==='weapon'?G.M.weapon.n:evName(e),d:e.t,tag:'EVIDENCE'})}
+  return out}
+function reveal3(list,done){if(!list.length)return done();const it=list.shift();try{SND.ev()}catch(_){}
+  $('#reveal3')?.remove();$('#play').insertAdjacentHTML('beforeend',`<div class="rv3" id="reveal3" role="dialog" aria-label="Found: ${it.name}"><div class="rays"></div><span class="tag">FOUND</span>
+<div class="disc">${ITEMS.svg(it.art,230,it.col)}</div><b class="nm">${it.name.toUpperCase()}</b><p>${it.d}</p><em>${it.tag}</em><small>TAP TO PUT IT IN YOUR SATCHEL</small></div>`);
+  const el=$('#reveal3');let gone=false;const go=()=>{if(gone)return;gone=true;const sat=$('#dsat3'),d=el.querySelector('.disc');
+    if(sat&&d){const a=d.getBoundingClientRect(),b=sat.getBoundingClientRect();d.style.transition='transform .5s cubic-bezier(.5,0,.8,.6),opacity .5s';d.style.transform=`translate(${b.left+b.width/2-a.left-a.width/2}px,${b.top+b.height/2-a.top-a.height/2}px) scale(.18)`;d.style.opacity='.4'}
+    el.classList.add('out');setTimeout(()=>{el.remove();if(sat){sat.classList.remove('pulse3');void sat.offsetWidth;sat.classList.add('pulse3')}try{SND.bag()}catch(_){}reveal3(list,done)},520)};
+  el.addEventListener('click',go);setTimeout(go,window.__noAuto?1e9:6000)}
+const flyNew3n=flyNew;flyNew=function(ev0,it0){if(!G)return;const list=revealList3(ev0,it0);if(!list.length)return flyNew3n(ev0,it0);
+  /* tools and physical evidence get the reveal; anything else (statements, observations) still flies to the board as before */
+  const g=G,itN=(G.items||[]).length,keep=G.ev.slice(ev0).filter(e=>!PHYS.includes(e.id));
+  reveal3(list,()=>{if(G!==g)return;refresh();if(keep.length){const evAll=G.ev;const idx=G.ev.indexOf(keep[0]);flyNew3n(idx<0?G.ev.length:idx,itN)}})};
 
 /* ---------- sound effects: every action has a sound, made live in the house's own room ---------- */
 Object.assign(SND,{

@@ -2,4 +2,5 @@ _local.html
 node_modules/
 *.log
 *.png
+!icons/*.png
 __pycache__/

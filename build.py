@@ -42,4 +42,15 @@ for r in ['study','hall','lounge','library','dining','kitchen','cellar','boiler'
 k=src.index('<script>\n/* BLACKWOOD LODGE engine')
 src=src[:k]+pre+src[k:]
 if '<meta charset' not in src: src='<meta charset="utf-8">\n'+src
+HEAD='''<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<meta name="theme-color" content="#0c0c0f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="Blackwood">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<link rel="manifest" href="manifest.webmanifest">
+'''
+if 'name="viewport"' not in src: src=src.replace('<meta charset="utf-8">','<meta charset="utf-8">\n'+HEAD,1)
 open(ROOT+'index.html','w').write(src);print('built',len(src))

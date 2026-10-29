@@ -203,14 +203,19 @@ function one3(r,next){const T=THREE,b=$('#play').getBoundingClientRect();D3.r.se
   const two=!!r.adv&&r.other;D3.m2.visible=two;D3.m1.geometry.groups.forEach(gr=>gr.materialIndex=0);D3.base.color.set('#ffffff');D3.m1.scale.setScalar(two?sc*.85:sc);D3.m2.scale.setScalar(sc*.6);
   const q1=faceQ(r.d,1),q2=two?faceQ(r.other,-1):null;const sa=new T.Vector3(.35,1,.2).normalize(),sb=new T.Vector3(1,.3,-.4).normalize();
   const ax1=new T.Vector3(Math.random()-.5,Math.random()-.5,Math.random()-.5).normalize(),ax2=new T.Vector3(Math.random()-.5,Math.random()-.5,Math.random()-.5).normalize();
-  let phase='ready',t0=0,landed=false,skip=false,hold=null,qs1=new T.Quaternion(),qs2=new T.Quaternion();const tr=performance.now();
+  const sh={sg:0,snd:0,last:0,ax:new T.Vector3(.35,1,.2).normalize(),ax2:new T.Vector3(1,.3,-.4).normalize()};D3.m1.quaternion.setFromAxisAngle(sa,Math.random()*6);D3.m2.quaternion.setFromAxisAngle(sb,Math.random()*6);let phase='ready',t0=0,landed=false,skip=false,hold=null,qs1=new T.Quaternion(),qs2=new T.Quaternion();const tr=performance.now();
   const finish=()=>{if(ov._done)return;ov._done=true;cancelAnimationFrame(D3.raf);next()};
   const throwIt=()=>{if(phase!=='ready')return;phase='roll';t0=performance.now();qs1.copy(D3.m1.quaternion);qs2.copy(D3.m2.quaternion);ov.classList.add('rolling');try{SND.dice()}catch(_){}};
   ov.onclick=()=>{if(phase==='ready')throwIt();else if(landed){clearTimeout(hold);finish()}else skip=true};
   const frame=()=>{const now=performance.now();
-    if(phase==='ready'){const s=(now-tr)/1000;const bob=Math.sin(s*2.2)*.12;
-      D3.m1.position.set(two?.42:0,yW+.35+bob,0);D3.m1.quaternion.setFromAxisAngle(sa,s*1.6).multiply(new T.Quaternion().setFromAxisAngle(sb,s*.9));
-      if(two){D3.m2.position.set(-.6,yW+.1-bob*.8,-.3);D3.m2.quaternion.setFromAxisAngle(sb,s*1.9).multiply(new T.Quaternion().setFromAxisAngle(sa,s*.7))}}
+    if(phase==='ready'){/* shaken in a cupped hand: bursts of quick back-and-forth, the die tumbling and rattling at each turn, then a breath */
+      const s=(now-tr)/1000,dt=Math.min(.05,(now-(sh.last||now))/1000);sh.last=now;const P=1.9,c=s%P,burst=c<1.15&&!reduce,f=6.2;
+      const w=burst?Math.sin(2*Math.PI*f*c):0,amp=burst?Math.min(1,c/.12)*Math.min(1,(1.15-c)/.15):0,snap=Math.sign(w)*Math.pow(Math.abs(w),.55)*amp;
+      const sg=w>=0?1:-1;if(burst&&sg!==sh.sg){sh.sg=sg;sh.ax.set(Math.random()-.5,Math.random()-.5,Math.random()-.5).normalize();sh.ax2.set(Math.random()-.5,Math.random()-.5,Math.random()-.5).normalize();if(now-sh.snd>120){sh.snd=now;try{SND.rattle(two)}catch(_){}}}
+      const rest=burst?0:Math.sin((c-1.15)/(P-1.15)*Math.PI),jx=burst?(Math.random()-.5)*.05:0,jy=burst?(Math.random()-.5)*.05:0;
+      const hx=snap*.32,hy=snap*.13+rest*.08;D3.m1.position.set((two?.42:0)+hx+jx,yW+.35+hy+jy,0);
+      D3.m1.quaternion.multiply(new T.Quaternion().setFromAxisAngle(sh.ax,(burst?14:.9)*dt));
+      if(two){D3.m2.position.set(-.6+hx*.9-jx,yW+.1+hy*.8-jy,-.3);D3.m2.quaternion.multiply(new T.Quaternion().setFromAxisAngle(sh.ax2,(burst?16:1.1)*dt))}}
     else{let t=(now-t0)/1000/dur;if(skip)t=1;t=Math.min(1,t);const e=1-Math.pow(1-t,3);
       const y=t<.55?yW+.35*(1-t/.55)+Math.sin(Math.PI*t/.55)*1.7:yW+Math.abs(Math.sin((t-.55)/.45*Math.PI*2))*.25*(1-t);
       D3.m1.position.set((two?.42:0)+Math.sin(t*Math.PI)*.3,y,0);if(landed){const k=Math.min(1,(now-D3.pop)/220);D3.m1.scale.setScalar((two?sc*.85:sc)*(1+.14*Math.sin(k*Math.PI/2)))}D3.m1.quaternion.copy(qs1).slerp(q1,e).multiply(new T.Quaternion().setFromAxisAngle(ax1,6*Math.PI*(1-e)));
@@ -220,10 +225,22 @@ function one3(r,next){const T=THREE,b=$('#play').getBoundingClientRect();D3.r.se
   frame();setTimeout(()=>{const b2=ov.querySelector('.tap3');if(b2)b2.focus()},50)}
 
 /* ---------- things flying into the satchel or onto the board ---------- */
-function flyNew(ev0,it0){const items=(G.items||[]).slice(it0).map(it=>({t:TOOLS[it.id].n,to:'#dsat3'})),evs=G.ev.slice(ev0).map(e=>({t:evName(e),to:PHYS.includes(e.id)?'#dsat3':'#dbrd3'}));
+function flyNew(ev0,it0){const items=(G.items||[]).slice(it0).map(it=>({t:TOOLS[it.id].n,to:'#dsat3'})),evs=G.ev.slice(ev0).filter(e=>PHYS.includes(e.id)).map(e=>({t:evName(e),to:'#dsat3'}));
+  const clues=G.ev.slice(ev0).filter(e=>!PHYS.includes(e.id));if(clues.length)clue3(clues);
   [...items,...evs].forEach((f,i)=>setTimeout(()=>{const tgt=$(f.to),pl=$('#play');if(!tgt||!pl)return;const pb=pl.getBoundingClientRect(),tb=tgt.getBoundingClientRect();const el=document.createElement('div');el.className='fly3 parch3';el.textContent=f.t;el.style.left=(pb.width/2-60)+'px';el.style.top=(pb.height*.38)+'px';pl.appendChild(el);
     requestAnimationFrame(()=>requestAnimationFrame(()=>{const er=el.getBoundingClientRect();el.style.transform=`translate(${tb.left+tb.width/2-er.left-er.width/2}px,${tb.top+tb.height/2-er.top-er.height/2}px) scale(.3)`;el.style.opacity='0'}));
     setTimeout(()=>{el.remove();tgt.classList.remove('pulse3');void tgt.offsetWidth;tgt.classList.add('pulse3')},1000);try{SND.ev()}catch(_){}},500+i*350))}
+/* a clue you worked out or noticed: stamped across the middle of the screen with its own sound, then pinned to the board, which keeps a count of what you haven't looked at */
+const CQ3=[];let CQ3on=false;
+function clue3(list){list.forEach(e=>CQ3.push(e));if(!CQ3on)clueNext3()}
+function clueNext3(){const e=CQ3.shift();if(!e||!G){CQ3on=false;return}CQ3on=true;const g=G;const contra=/^contra_/.test(e.id);let name='A note';try{name=evName(e)}catch(_){}const txt=String(e.t||'').replace(/<[^>]+>/g,'');
+  $('#clue3')?.remove();$('#play').insertAdjacentHTML('beforeend',`<div class="clue3 ${contra?'contra':''}" id="clue3" role="status" aria-live="polite"><div class="stamp"><span>${contra?'CONTRADICTION':'NEW CLUE'}</span></div><div class="card"><div class="ic">${ITEMS.svg('magnifier',56)}</div><b>${name.toUpperCase()}</b><p>${txt.length>130?txt.slice(0,127)+'…':txt}</p><small>PINNED TO YOUR BOARD</small></div></div>`);
+  try{SND.clue(contra)}catch(_){}if(window.LOG3)LOG3.ev('clue',{id:e.id});
+  const el=$('#clue3');let gone=false;const go=()=>{if(gone)return;gone=true;const tgt=$('#dbrd3'),cd=el.querySelector('.card');
+    if(tgt&&cd){const a=cd.getBoundingClientRect(),b=tgt.getBoundingClientRect();cd.style.transition='transform .45s cubic-bezier(.5,0,.8,.6)';cd.style.transform=`translate(${b.left+b.width/2-a.left-a.width/2}px,${b.top+b.height/2-a.top-a.height/2}px) scale(.12) rotate(-8deg)`}
+    el.classList.add('out');setTimeout(()=>{el.remove();if(G===g){G._newC=(G._newC||0)+1;newBadge3();const t=$('#dbrd3');if(t){t.classList.remove('pulse3');void t.offsetWidth;t.classList.add('pulse3')}try{SND.pin()}catch(_){}}clueNext3()},470)};
+  el.addEventListener('click',go);setTimeout(go,window.__noAuto?1e9:2600)}
+function newBadge3(){const t=$('#dbrd3');if(!t||!G)return;let b=t.querySelector('.new3');const n=G._newC||0;if(!n){b&&b.remove();return}if(!b){b=document.createElement('i');b.className='new3';t.appendChild(b)}b.textContent='+'+n}
 /* ---------- the screen ---------- */
 function meHTML(){const lit=Math.ceil(G.nerve/2);let n='';for(let i=0;i<5;i++)n+=`<i class="${i<lit?'on':''}"></i>`;let h='';for(let i=0;i<G.hpMax;i++)h+=`<i class="${i<G.hp?'on':''}"></i>`;
   return `<span class="bars3"><span class="br"><b>NERVE</b><span class="nv" aria-label="Nerve ${Math.round(G.nerve)} of 10">${n}</span></span><span class="br"><b class="r">HEALTH</b><span class="hpb" aria-label="Health ${G.hp} of ${G.hpMax}">${h}</span></span></span><span class="pf3">${meSil}</span>`}

@@ -371,14 +371,14 @@
 .rp3 i{font:700 10px var(--in);font-style:normal;letter-spacing:.12em;color:#ffffffc8;text-shadow:0 1px 3px #000}
 #watch3 .tsub3{display:block;margin-top:5px}
 #play.talking .ui3 .rp3{visibility:hidden}
-.arr3{position:absolute;inset:0;z-index:15;pointer-events:none;background:#0c0c0f80;animation:arr3 .3s ease-out both}
+.arr3{position:absolute;inset:0;z-index:15;pointer-events:none;background:#0c0c0f80;animation:arr3 .35s ease-out both}
 .arr3 .band{position:absolute;left:-20px;right:-20px;top:36%;height:150px;background:var(--red);transform:skewY(-6deg);box-shadow:0 10px 0 #000}
 .arr3 .tx{position:absolute;left:0;right:0;top:calc(36% - 8px);text-align:center;color:#fff}
 .arr3 small{display:block;font:800 12px var(--in);letter-spacing:.3em;color:#ffd0d6}
 .arr3 b{display:block;font:400 clamp(48px,17vw,78px)/.95 var(--bb);letter-spacing:.02em;text-shadow:5px 5px 0 #0c0c0f;padding:0 12px}
 .arr3 i{display:block;font:600 13px var(--in);font-style:normal;margin-top:6px}
 .arr3.out{transition:opacity .35s;opacity:0}
-@keyframes arr3{from{transform:translateX(-30px)}to{transform:none}}
+@keyframes arr3{from{background-color:#0c0c0f00}to{background-color:#0c0c0f80}}
 /* found it */
 .rv3{position:absolute;inset:0;z-index:25;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 22px;text-align:center;color:#fff;cursor:pointer;background:radial-gradient(circle at 50% 40%,#0c0c0fd0,#0c0c0ffa 70%);animation:rv3 .3s ease-out both;overflow:hidden}
 .rv3 .rays{position:absolute;left:50%;top:40%;width:820px;height:820px;margin:-410px 0 0 -410px;background:repeating-conic-gradient(#ffc83d14 0 6deg,transparent 6deg 22.5deg);animation:rays3 18s linear infinite;pointer-events:none}
@@ -410,3 +410,39 @@
 .say3 .rs3.ok{background:var(--gold);color:#0c0c0f}.say3 .rs3.no{background:#fff;color:var(--red)}
 @keyframes say3{from{transform:translateY(16px)}to{transform:none}}
 @media (prefers-reduced-motion:reduce){.say3{animation:none}}
+
+.arr3 .band{animation:arr3b .35s cubic-bezier(.2,.8,.2,1) both}.arr3 .tx{animation:arr3t .4s .08s ease-out both}
+@keyframes arr3b{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 0 0 0)}}@keyframes arr3t{from{transform:translateX(-24px);clip-path:inset(0 100% 0 0)}to{transform:none;clip-path:inset(0 0 0 0)}}
+
+/* a clue found: stamped across the screen, then pinned to the board */
+.clue3{position:absolute;inset:0;z-index:24;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 26px;cursor:pointer;background:linear-gradient(#0c0c0f00,#0c0c0fb8 30%,#0c0c0fb8 70%,#0c0c0f00);animation:cl3bg .3s ease-out both}
+.clue3 .stamp{position:relative;z-index:2;margin-bottom:-14px;background:var(--gold);color:var(--k);font:400 30px/1 var(--bb);letter-spacing:.18em;padding:8px 18px 5px;transform:rotate(-4deg) skewX(-10deg);box-shadow:5px 5px 0 #000;animation:cl3st .38s cubic-bezier(.2,1.5,.4,1) both}
+.clue3.contra .stamp{background:var(--red);color:#fff}
+.clue3 .card{position:relative;width:min(330px,86vw);background:var(--wh);color:var(--k);padding:26px 20px 14px 84px;box-sizing:border-box;transform:skewX(-4deg);box-shadow:8px 8px 0 var(--red);border-left:8px solid var(--gold);animation:cl3cd .32s .05s cubic-bezier(.2,.9,.3,1) both}
+.clue3.contra .card{border-left-color:var(--red);box-shadow:8px 8px 0 #000}
+.clue3 .card>*{transform:skewX(4deg)}
+.clue3 .ic{position:absolute;left:14px;top:22px;width:56px;height:56px}
+.clue3 .ic svg{width:100%;height:100%}
+.clue3 b{display:block;font:400 30px/1 var(--bb);letter-spacing:.03em}
+.clue3 p{margin:6px 0 0;font:500 14px/1.4 var(--in);color:#2a2a30}
+.clue3 small{display:block;margin-top:10px;font:700 10px var(--in);letter-spacing:.16em;color:var(--red)}
+.clue3.out{transition:background-color .4s;background:transparent}.clue3.out .stamp{transition:transform .3s,clip-path .3s;clip-path:inset(0 0 100% 0)}
+@keyframes cl3bg{from{background-color:#0c0c0f00;clip-path:inset(48% 0 48% 0)}to{clip-path:inset(0 0 0 0)}}
+@keyframes cl3st{from{transform:rotate(-14deg) skewX(-10deg) scale(2.4)}to{transform:rotate(-4deg) skewX(-10deg)}}
+@keyframes cl3cd{from{transform:skewX(-4deg) translateX(-60px);clip-path:inset(0 100% 0 0)}to{transform:skewX(-4deg);clip-path:inset(0 0 0 0)}}
+#dbrd3{position:relative}
+.new3{position:absolute;top:-8px;right:4px;min-width:22px;height:20px;padding:0 5px;box-sizing:border-box;background:var(--red);color:#fff;font:400 15px/21px var(--bb);font-style:normal;letter-spacing:.04em;transform:skewX(-8deg);box-shadow:2px 2px 0 #000;pointer-events:none}
+/* the satchel stays put when you pick something */
+.still3,.still3 *{animation:none!important}
+/* problem log */
+.log3w{position:fixed;inset:0;z-index:200;background:#000000c0;display:flex;align-items:flex-end;justify-content:center}
+.log3w .in{width:100%;max-width:520px;max-height:82vh;background:#16161b;color:#fff;padding:18px 16px 20px;box-sizing:border-box;display:flex;flex-direction:column;border-top:6px solid var(--red)}
+.log3w .hd3{display:flex;justify-content:space-between;align-items:center}.log3w .ttl{font:400 26px var(--bb);letter-spacing:.1em}
+.log3w .sum{font:600 13px var(--in);color:#ffffffaa;margin:6px 0 10px}.log3w .sum b{color:var(--gold)}
+.log3w .rows{flex:1;overflow-y:auto;font:500 12px/1.35 var(--in);border-top:1px solid #ffffff22}
+.log3w .lg3{display:flex;gap:8px;padding:6px 0;border-bottom:1px solid #ffffff14}.log3w .lg3 time{flex:none;color:#ffffff66;width:62px}.log3w .lg3 b{color:var(--gold);font-weight:700}
+.log3w .lg3.bad b{color:var(--red)}.log3w .lg3.warn b{color:#ff9a3d}
+.log3w .acts{display:flex;gap:10px;margin-top:14px}.log3w small{margin-top:8px;color:#ffffff77;font:600 11px var(--in)}
+.logbtn3{position:fixed;right:14px;bottom:calc(14px + env(safe-area-inset-bottom));z-index:150;background:none;border:1px solid #ffffff33;color:#ffffff88;font:700 10px var(--in);letter-spacing:.14em;padding:6px 10px}
+@media (prefers-reduced-motion:reduce){.clue3,.clue3 *{animation:none!important}}
+.logbtn3[hidden]{display:none}

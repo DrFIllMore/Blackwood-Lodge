@@ -14,7 +14,7 @@ a=src.index('/* ---------- SCENE DRAWING ---------- */');b=src.index('/* -------
 src=src[:a]+open(B+'rooms/bridge.js').read()+'\n'+src[b:]
 # the play layer goes last so its functions win
 k=src.index("window.addEventListener('resize',()=>{if(G&&!$('#play').hidden)setupCanvas()});")
-src=src[:k]+open(B+'chars/people.js').read()+'\n'+open(B+'chars/poses.js').read()+'\n'+open(B+'chars/body.js').read()+'\n'+open(B+'chars/items.js').read()+'\n'+open(B+'play/play_data.js').read()+'\n'+open(B+'play/play.js').read()+'\n'+open(B+'play/people_game.js').read()+'\n'+open(B+'play/stand_game.js').read()+'\n'+open(B+'play/nav_game.js').read()+'\n'+open(B+'play/say_game.js').read()+'\n'+open(B+'play/sfx.js').read()+'\n'+open(B+'play/sfx_game.js').read()+'\n'+src[k:]
+src=src[:k]+open(B+'chars/people.js').read()+'\n'+open(B+'chars/poses.js').read()+'\n'+open(B+'chars/body.js').read()+'\n'+open(B+'chars/items.js').read()+'\n'+open(B+'play/play_data.js').read()+'\n'+open(B+'play/play.js').read()+'\n'+open(B+'play/people_game.js').read()+'\n'+open(B+'play/stand_game.js').read()+'\n'+open(B+'play/nav_game.js').read()+'\n'+open(B+'play/say_game.js').read()+'\n'+open(B+'play/sfx.js').read()+'\n'+open(B+'play/sfx_game.js').read()+'\n'+"window.BUILD3='"+__import__('time').strftime('%Y-%m-%d %H:%M')+"';\n"+open(B+'play/fix_game.js').read()+'\n'+src[k:]
 css=''
 css3='''
 #sc{touch-action:manipulation;cursor:pointer}#hots{display:none!important}

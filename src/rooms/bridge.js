@@ -46,7 +46,7 @@ function glInit(){if(GL.r)return true;const cv=document.createElement('canvas');
    void main(){vec3 col=texture2D(tDiffuse,vUv).rgb*exposure;col=aces(col);col=pow(col,vec3(1./2.2));
     col=clamp((col-.5)*1.05+.5,0.,1.);col=col*col*(3.-2.*col)*.18+col*.82;float lum=dot(col,vec3(.299,.587,.114));col=mix(vec3(lum),col,1.12);col=mix(col,col*vec3(.9,.95,1.06),smoothstep(.4,0.,lum)*.35);col=mix(col,col*vec3(1.05,1.0,.93),smoothstep(.4,.9,lum)*.3);
     vec2 q=vUv-.5;float v=smoothstep(.85,.25,length(q*vec2(1.,1.25)));col*=mix(.74,1.,v);col+=(h(vUv*vec2(900.,1300.)+time)-.5)*.018;gl_FragColor=vec4(col,1.);}`});GL.comp.addPass(GL.fin);
-  GL.rooms={};GL.cur=null;GL.ray=new T.Raycaster();GL.shadowFrames=3;GL.scale=1;GL.acc=0;GL.n=0;GL.lastAdj=0;GL.auto=!navigator.webdriver;
+  GL.r.debug.checkShaderErrors=false;GL.rooms={};GL.cur=null;GL.ray=new T.Raycaster();GL.shadowFrames=3;GL.scale=1;GL.acc=0;GL.n=0;GL.lastAdj=0;GL.auto=!navigator.webdriver;
   GL.cv.addEventListener('pointerdown',e=>{GL.down={x:e.clientX,y:e.clientY}});
   GL.cv.addEventListener('pointerup',e=>{const d=GL.down;GL.down=null;if(!d||Math.hypot(e.clientX-d.x,e.clientY-d.y)>10)return;tap3(e)});
   return true}
@@ -63,11 +63,11 @@ function helpers3(seedIn,scene,ANIM,hooks){const T=THREE;let seed=seedIn||7;cons
   const tiledBox=(w,h,d,mat,x,y,z,tile=1,o={})=>{const g=BOX(w,h,d);const uv=g.attributes.uv,nm=g.attributes.normal;for(let i=0;i<uv.count;i++){const nx=Math.abs(nm.getX(i))>.5,ny=Math.abs(nm.getY(i))>.5;const su=nx?d:w,sv=ny?d:h;uv.setXY(i,uv.getX(i)*su/tile,uv.getY(i)*sv/tile)}return add(g,mat,x,y,z,o)};
   const lin=c=>new T.Color(c).convertSRGBToLinear();const hook=(n,o,data)=>{(hooks[n]||(hooks[n]=[])).push({o,data})};
   return {T,TAU:Math.PI*2,rnd,ctex,noise,scene,renderer:GL.r,camera:GL.cam,ANIM,M,add,RB,BOX,lathe,grp,plane,tube,tiledBox,lin,hook}}
-function env3(scene,R){if(R.noEnv)return;const T=THREE;const pm=new T.PMREMGenerator(GL.r);const es=new T.Scene();es.background=new T.Color('#120c08');
+function env3(scene,R){if(R.noEnv)return;const T=THREE;const pm=GL.pm||(GL.pm=new T.PMREMGenerator(GL.r));const es=new T.Scene();es.background=new T.Color('#120c08');
   const eb=(c,k,x,y,z,sx,sy,sz)=>{const m=new T.Mesh(new T.BoxGeometry(sx,sy,sz),new T.MeshBasicMaterial({color:new T.Color(c).multiplyScalar(k)}));m.position.set(x,y,z);es.add(m)};
   (R.env||[['#3a2416',1,0,-2,0,12,.2,12],['#2a1a10',1,0,0,6,12,8,.2],['#2a1a10',1,0,0,-6,12,8,.2],['#2a1a10',1,-6,0,0,.2,8,12],['#2a1a10',1,6,0,0,.2,8,12],['#ffd0a0',4,0,4,0,2.4,.2,2.4],['#5a74b8',2.5,-2,1.4,-5.8,2,2.4,.2]]).forEach(a=>eb(...a));
   const envRT=pm.fromScene(es,.03),envT=envRT.texture;scene.userData.envRT=envRT;es.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material)o.material.dispose()});scene.traverse(o=>{if(!o.isMesh)return;const m=o.material;if(!m||!m.isMeshStandardMaterial||m.envMap||m.userData.noEnv)return;
-    if(m.isMeshPhysicalMaterial||m.metalness>.4||m.roughness<.36){m.envMap=envT;m.envMapIntensity=m.userData.env!=null?m.userData.env:(m.metalness>.4?1.0:(m.isMeshPhysicalMaterial?1.2:.35));m.needsUpdate=true}});pm.dispose()}
+    if(m.isMeshPhysicalMaterial||m.metalness>.4||m.roughness<.36){m.envMap=envT;m.envMapIntensity=m.userData.env!=null?m.userData.env:(m.metalness>.4?1.0:(m.isMeshPhysicalMaterial?1.2:.35));m.needsUpdate=true}})}
 function merge3(room){const T=THREE,scene=room.scene;scene.updateMatrixWorld(true);const groups=new Map();
   scene.traverse(o=>{if(!o.isMesh||o.isInstancedMesh)return;const m=o.material;if(!m||Array.isArray(m)||m.transparent||m.isShaderMaterial)return;for(let p=o;p;p=p.parent)if(!p.visible||p.userData.dyn)return;
     const s0=room.snap.get(o);if(!s0||!s0.equals(o.matrixWorld)||o.matrixWorld.determinant()<=0)return;const g=o.geometry;if(!g||!g.attributes.position||(g.morphAttributes&&Object.keys(g.morphAttributes).length))return;
@@ -78,12 +78,19 @@ function merge3(room){const T=THREE,scene=room.scene;scene.updateMatrixWorld(tru
     out.computeBoundingSphere();const mesh=new T.Mesh(out,list[0].material);mesh.castShadow=list[0].castShadow;mesh.receiveShadow=list[0].receiveShadow;mesh.renderOrder=list[0].renderOrder;mesh.matrixAutoUpdate=false;mesh.updateMatrix();scene.add(mesh);list.forEach(o=>{o.parent.remove(o);if(o.geometry)o.geometry.dispose()});parts.forEach(g=>g.dispose())}
   GL.shadowFrames=3}
 function evict3(keep){for(const k of Object.keys(GL.rooms)){if(keep.includes(k))continue;GL.rooms[k].scene.traverse(o=>{if(o.isLight&&o.shadow&&o.shadow.map){o.shadow.map.dispose();o.shadow.map=null}if(o.geometry)o.geometry.dispose();const ms=o.material?(Array.isArray(o.material)?o.material:[o.material]):[];ms.forEach(m=>{for(const key in m){const v=m[key];if(v&&v.isTexture)v.dispose()}m.dispose()})});const rt=GL.rooms[k].scene.userData.envRT;if(rt)rt.dispose();GL.rooms[k].snap=null;GL.rooms[k].hits=[];GL.rooms[k].st3=null;delete GL.rooms[k]}}
-function build3(id){const T=THREE,name=r3id(id),def=(window.__ROOMDEFS||{})[name];if(!def)return null;const scene=new T.Scene();scene.background=new T.Color('#05060a');const ANIM=[],hooks={};
-  const R=def.build(helpers3(def.seed,scene,ANIM,hooks));env3(scene,R);const torch=new T.PointLight('#ffd8a8',0,8,1.3);scene.add(torch);
+/* every room carries the same set of lights (spares sit dark), so the shaders built for one room serve them all */
+const PAD3={HemisphereLight:[1,0],DirectionalLight:[1,1],PointLight:[7,1],SpotLight:[3,2]};
+function pad3(scene){const T=THREE,c={};scene.traverse(o=>{if(!o.isLight||!PAD3[o.type])return;const k=c[o.type]||(c[o.type]=[0,0]);k[0]++;if(o.castShadow)k[1]++});
+  for(const t in PAD3){const k=c[t]||[0,0];let need=Math.max(0,PAD3[t][0]-k[0]),sh=Math.max(0,PAD3[t][1]-k[1]);need=Math.max(need,sh);
+    for(let i=0;i<need;i++){const L=t==='HemisphereLight'?new T.HemisphereLight(0,0,0):new T[t](0,0);L.intensity=0;L.position.set(0,-50,0);L.userData.pad=1;
+      if(i<sh){L.castShadow=true;L.shadow.mapSize.set(4,4);const c2=L.shadow.camera;c2.near=.001;c2.far=.002;if(c2.isOrthographicCamera){c2.left=c2.bottom=-.001;c2.right=c2.top=.001}c2.updateProjectionMatrix()}
+      scene.add(L);if(L.target){L.target.position.set(0,-51,0);scene.add(L.target)}}}}
+function build3(id,quiet){const T=THREE,name=r3id(id),def=(window.__ROOMDEFS||{})[name];if(!def)return null;const scene=new T.Scene();scene.background=new T.Color('#05060a');const ANIM=[],hooks={};
+  const R=def.build(helpers3(def.seed,scene,ANIM,hooks));env3(scene,R);const torch=new T.PointLight('#ffd8a8',0,8,1.3);scene.add(torch);pad3(scene);
   const r={id,name,scene,R,ANIM,hooks,torch,views:R.views,hits:[],far:R.far||300,exp:R.exposure||1.4,dexp:R.darkExposure!=null?R.darkExposure:.35,bloom:R.bloom||[.32,.32,1.12],age:0,merged:false,G:G};
   caseSet3(r);hits3(r);
-  GL.pass.scene=scene;const cull=[];scene.traverse(o=>{if(o.frustumCulled){cull.push(o);o.frustumCulled=false}});try{GL.r.compile(scene,GL.cam);GL.r.shadowMap.needsUpdate=true;GL.comp.render()}catch(e){}cull.forEach(o=>o.frustumCulled=true);
-  scene.updateMatrixWorld(true);r.snap=new Map();scene.traverse(o=>{if(o.isMesh)r.snap.set(o,o.matrixWorld.clone())});GL.rooms[id]=r;return r}
+  const cull=[];scene.traverse(o=>{if(o.frustumCulled){cull.push(o);o.frustumCulled=false}});try{if(quiet==='defer'){}else if(quiet){const rt=GL.prt||(GL.prt=new T.WebGLRenderTarget(64,64));const c0=GL.r.getRenderTarget();GL.r.setRenderTarget(rt);GL.r.render(scene,GL.cam);GL.r.setRenderTarget(c0)}else{GL.pass.scene=scene;GL.r.compile(scene,GL.cam);GL.r.shadowMap.needsUpdate=true;GL.comp.render()}}catch(e){}cull.forEach(o=>o.frustumCulled=true);
+  scene.updateMatrixWorld(true);r.snap=new Map();scene.traverse(o=>{if(o.isMesh)r.snap.set(o,o.matrixWorld.clone())});if(quiet!=='defer')GL.rooms[id]=r;return r}
 const dyn3=o=>{if(o&&o.isObject3D)o.userData.dyn=true};
 function view3(r,v){return typeof v==='string'?r.views[v]:v}
 /* what the case puts in each room */
@@ -144,14 +151,29 @@ const SCENE={invalidate(){},render(){}};
 function setupCanvas(){if(!glInit()){const v=$('#view');if(v)v.innerHTML='<p style="padding:40px 20px;color:#8d99b8">This device could not start 3D rendering.</p>';return}
   const old=$('#sc');if(old&&old!==GL.cv)old.replaceWith(GL.cv);const view=$('#view');
   if(!$('#ppl3'))view.insertAdjacentHTML('beforeend','<div class="ppl3" id="ppl3"></div><button class="back3" id="back3" hidden>Room view</button><div class="veil3" id="veil3"></div>');$('#back3').onclick=()=>wide3();
-  if(!GL.ro){GL.ro=new ResizeObserver(()=>size3());GL.ro.observe(view)}else{GL.ro.disconnect();GL.ro.observe(view)}size3();GL.cur=null;GL.shownRoom=null}
-function size3(){const v=$('#view');if(!v||!GL.r)return;const b=v.getBoundingClientRect();if(b.width<2)return;V.W=b.width;V.H=b.height;GL.r.setSize(b.width,b.height,false);GL.comp.setSize(b.width,b.height);GL.bloom.resolution.set(b.width,b.height);
+  if(!GL.ro){GL.ro=new ResizeObserver(()=>size3());GL.ro.observe(view)}else{GL.ro.disconnect();GL.ro.observe(view)}size3(true);GL.cur=null;GL.shownRoom=null}
+function size3(force){const v=$('#view');if(!v||!GL.r)return;const b=v.getBoundingClientRect();if(b.width<2)return;const key=[b.width,b.height,V.uiBottom,GL.scale].join('|');if(!force&&key===GL.sizeKey)return;GL.sizeKey=key;V.W=b.width;V.H=b.height;GL.r.setSize(b.width,b.height,false);GL.comp.setSize(b.width,b.height);GL.bloom.resolution.set(b.width,b.height);
   // frame the room in the part of the screen the panel doesn't cover
   const vis=Math.max(200,b.height-(V.uiBottom||230)+150);GL.cam.aspect=b.width/b.height;GL.cam.setViewOffset(b.width,vis,0,0,b.width,b.height);GL.cam.updateProjectionMatrix()}
+function near3(id){return ((ROOMS[id]||{}).adj||[]).filter(k=>window.__ROOMDEFS&&__ROOMDEFS[r3id(k)])}
+/* loading ahead, a little at a time while the player reads: build the next room, then compile its materials a few per slice
+   against a stand-in set of lights (every room carries the same set), then upload it. No single slice stalls the screen. */
+function ahead3(dl){if(!G||!GL.cur||!GL.r)return;if(performance.now()-(GL.idleAt||0)<1500||!GL.cur.merged||$('#roll3'))return;if(typeof P3!=='undefined'&&P3.busy)return;
+  const P=GL.pre,t0=performance.now(),left=()=>dl&&dl.timeRemaining?dl.timeRemaining()>4:performance.now()-t0<30;
+  if(P&&(P.G!==G||!near3(GL.cur.id).includes(P.id)||GL.rooms[P.id])){dropPre3();return}
+  if(!P){const k=near3(GL.cur.id).find(x=>!GL.rooms[x]);if(!k)return;let r=null;try{r=build3(k,'defer')}catch(e){console.warn(e);return}if(!r)return;
+    const ms=new Map();r.scene.traverse(o=>{if(o.material)[].concat(o.material).forEach(m=>{const key=m.uuid+(o.isInstancedMesh?'i':'');if(!ms.has(key))ms.set(key,[m,!!o.isInstancedMesh])})});GL.pre={id:k,r,G,mats:[...ms.values()],i:0,t:Math.round(performance.now()-t0)};return}
+  if(!GL.proxy){const g=new THREE.PlaneGeometry(.01,.01);GL.proxy=new THREE.Scene();pad3(GL.proxy);GL.pmesh=new THREE.Mesh(g);GL.pimesh=new THREE.InstancedMesh(g,undefined,1);GL.proxy.add(GL.pmesh,GL.pimesh)}
+  if(P.i<P.mats.length){do{const [m,inst]=P.mats[P.i++];try{const a=inst?GL.pimesh:GL.pmesh,b=inst?GL.pmesh:GL.pimesh;a.visible=true;a.material=m;b.material=GL.pmat||(GL.pmat=new THREE.MeshBasicMaterial());GL.r.compile(GL.proxy,GL.cam)}catch(_){}}while(P.i<P.mats.length&&left());P.t+=Math.round(performance.now()-t0);return}
+  try{const rt=GL.prt||(GL.prt=new THREE.WebGLRenderTarget(64,64));const c0=GL.r.getRenderTarget();const cull=[];P.r.scene.traverse(o=>{if(o.frustumCulled){cull.push(o);o.frustumCulled=false}});GL.r.setRenderTarget(rt);GL.r.render(P.r.scene,GL.cam);GL.r.setRenderTarget(c0);cull.forEach(o=>o.frustumCulled=true)}catch(_){}
+  P.t+=Math.round(performance.now()-t0);GL.rooms[P.id]=P.r;GL.pre=null;if(window.LOG3)LOG3.ev('preload',{id:P.id,ms:P.t,mats:P.mats.length})}
+function dropPre3(){const P=GL.pre;GL.pre=null;if(!P)return;GL.rooms['__pre']=P.r;evict3(Object.keys(GL.rooms).filter(k=>k!=='__pre'));delete GL.rooms['__pre']}
+setInterval(()=>{if(document.hidden)return;(window.requestIdleCallback||(f=>setTimeout(f,0)))(ahead3,{timeout:600})},350);
+['pointerdown','keydown'].forEach(e=>addEventListener(e,()=>{GL.idleAt=performance.now()},true));
 function enter3(id){const veil=$('#veil3');if(veil)veil.classList.add('on');GL.entering=id;
-  setTimeout(()=>{if(!G||GL.entering!==id)return;const prev=GL.cur&&GL.cur.id;evict3([id,prev].filter(Boolean));const r=GL.rooms[id]||build3(id);if(!r)return;GL.cur=r;GL.shownRoom=id;GL.pass.scene=r.scene;GL.cam.far=r.far;GL.cam.updateProjectionMatrix();
+  setTimeout(()=>{if(!G||GL.entering!==id)return;const prev=GL.cur&&GL.cur.id;for(const k in GL.rooms)if(GL.rooms[k].G!==G)evict3(Object.keys(GL.rooms).filter(x=>x!==k));evict3([id,prev,...near3(id)].filter(Boolean));if(GL.pre&&GL.pre.id===id&&GL.pre.G===G){const P=GL.pre;GL.pre=null;GL.r.compile(P.r.scene,GL.cam);GL.rooms[id]=P.r}else if(GL.pre&&GL.pre.id!==id&&!near3(id).includes(GL.pre.id))dropPre3();const t0=performance.now(),had=!!GL.rooms[id];const r=GL.rooms[id]||build3(id);if(!r)return;if(window.LOG3)LOG3.ev('room',{id,ms:Math.round(performance.now()-t0),cached:had});if(!r)return;GL.cur=r;GL.shownRoom=id;GL.pass.scene=r.scene;GL.cam.far=r.far;GL.cam.updateProjectionMatrix();
     GL.bloom.strength=r.bloom[0];GL.bloom.radius=r.bloom[1];GL.bloom.threshold=r.bloom[2];const w=r.views.wide;GL.p=new THREE.Vector3(...w.p);GL.t=new THREE.Vector3(...w.t);GL.fov=w.fov;GL.to=null;GL.tw=1;GL.close=false;GL.altI=0;GL.altRoom=id;$('#back3').hidden=true;
-    GL.dk=G.flags.power_out?1:0;GL.shadowFrames=3;people3();setTimeout(()=>veil&&veil.classList.remove('on'),140)},GL.cur?260:40)}
+    GL.dk=G.flags.power_out?1:0;GL.shadowFrames=3;GL.idleAt=performance.now();people3();setTimeout(()=>veil&&veil.classList.remove('on'),140)},GL.cur?260:40)}
 const _refresh0=refresh;
 refresh=function(){_refresh0();if(!GL.r)return;people3();if(GL.shownRoom!==G.room&&GL.entering!==G.room)enter3(G.room);size3()};
 function loop(){if(!G||$('#play').hidden){V.running=false;BGM.set('title');return}BGM.set(bgmMode());const raw=Math.min(.5,(performance.now()-(V.lastT||performance.now()))/1000);V.lastT=performance.now();const dt=Math.min(.05,raw);V.t+=dt;
@@ -164,7 +186,7 @@ function loop(){if(!G||$('#play').hidden){V.running=false;BGM.set('title');retur
     if(r.R.update)r.R.update(V.t,dt,on,GL.dk);r.ANIM.forEach(f=>f(dt,V.t,on));tick3(r);
     GL.fin.uniforms.exposure.value=r.exp+r.dexp*GL.dk-(G.flags.power_out&&!G.light?.7*GL.dk:0);GL.fin.uniforms.time.value=V.t%10;
     if(GL.shadowFrames>0){GL.r.shadowMap.needsUpdate=true;GL.shadowFrames--}GL.comp.render();
-    if(GL.auto&&r.merged){GL.acc+=raw;GL.n++;if(GL.n>=40){const avg=GL.acc/GL.n;GL.acc=0;GL.n=0;if(V.t-GL.lastAdj>2){let s=GL.scale;if(avg>1/42)s=Math.max(.5,s*.82);else if(avg<1/57&&s<1)s=Math.min(1,s*1.15);if(Math.abs(s-GL.scale)>.01){GL.scale=s;GL.lastAdj=V.t;GL.r.setPixelRatio(GL.PR*s);GL.comp.setPixelRatio(GL.PR*s);size3()}}}}}
+    if(GL.auto&&r.merged){GL.acc+=raw;GL.n++;if(GL.n>=40){const avg=GL.acc/GL.n;GL.acc=0;GL.n=0;if(V.t-GL.lastAdj>2){let s=GL.scale;if(avg>1/40&&GL.drops<3){s=Math.max(.6,s*.85);GL.drops=(GL.drops||0)+1};if(Math.abs(s-GL.scale)>.01){GL.scale=s;GL.lastAdj=V.t;GL.r.setPixelRatio(GL.PR*s);GL.comp.setPixelRatio(GL.PR*s);size3()}}}}}
   requestAnimationFrame(loop)}
 /* ---------- careful or quick: the player chooses whether to roll ---------- */
 const bonusOf=k=>3*((G.miss||{})[k]||0);

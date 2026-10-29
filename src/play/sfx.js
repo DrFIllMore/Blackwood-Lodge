@@ -35,6 +35,8 @@ Object.assign(SND,{
   fly(){this.nz(0,.45,500,.25,{q:2,to:4500,a:.2,wet:.2});this.os(1400,.44,.05,.08)},
   dice(){let t=0;for(let i=0;i<9;i++){const g=.035+i*i*.006;t+=g;const v=.5-i*.04;this.nz(t,.03,2600+Math.random()*1800,v,{q:6,wet:.2});this.os(900+Math.random()*700,t,.025,v*.12)}},
   shake(){for(let i=0;i<7;i++)this.nz(i*.07+Math.random()*.02,.03,3200+Math.random()*1500,.25,{q:5})},
+  rattle(two){const n=two?4:3;for(let i=0;i<n;i++){const t=i*.018+Math.random()*.012;this.nz(t,.022,2800+Math.random()*2200,.22-i*.03,{q:7,wet:.08});this.os(700+Math.random()*500,t,.02,.03)}this.nz(0,.06,900,.05,{type:'lowpass'})},
+  clue(c){/* a found clue: a soft low thud, then a bright two-note glint that hangs in the room */this.os(98,0,.5,.32,{to:70,wet:.3});this.nz(0,.04,1600,.12,{type:'lowpass'});const nt=c?[[466.2,.0],[440,.16]]:[[523.25,.0],[783.99,.13]];nt.forEach(([f,d])=>{this.os(f,.06+d,1.6,.16,{wet:.7,type:'triangle'});this.os(f*2,.06+d,.9,.05,{wet:.8})});this.nz(.06,.5,6000,.03,{type:'highpass',wet:.6})},
   land(){this.os(120,0,.18,.45,{to:70,wet:.2});this.nz(0,.05,1200,.3,{type:'lowpass'});this.nz(.02,.02,3800,.2,{q:6})},
   ok(){this.os(523.25,0,1.2,.08,{wet:.6});this.os(783.99,.05,1.2,.06,{wet:.6})},
   no(){this.os(110,0,1.1,.2,{type:'sawtooth',f:500,wet:.4});this.os(116.5,0,1.1,.16,{type:'sawtooth',f:500,wet:.4})},
@@ -62,4 +64,4 @@ Object.assign(SND,{
 });
 
 /* levels: every effect sits at a deliberate loudness */
-(()=>{const K={"click": 7.0, "choose": 2.0, "step": 1.54, "door": 1.37, "search": 2.5, "drawer": 1.43, "ev": 1.33, "fly": 3.5, "bag": 4.0, "page": 3.75, "pin": 3.75, "shake": 4.67, "dice": 5.0, "land": 1.22, "talk": 1.69, "heart": 1.17, "crack": 1.08, "lie": 1.27, "breakdown": 1.33, "slip": 0.93, "chime": 1.0, "powerCut": 1.78, "torch": 6.0, "lock": 2.57, "pry": 1.3, "thunder": 6.8, "night": 1.57, "attack": 0.81, "accuse": 0.97, "win": 1.78, "lose": 1.11, "swell": 1.14, "open": 3.0, "creak": 9.5, "ok": 1.2, "no": 0.9};for(const n in K){const f=SND[n];if(typeof f!=='function')continue;SND[n]=function(...a){const p=this._k;this._k=(p||1)*K[n];try{return f.apply(this,a)}finally{this._k=p}}}})();
+(()=>{const K={"rattle": 4.0, "clue": 1.6, "click": 7.0, "choose": 2.0, "step": 1.54, "door": 1.37, "search": 2.5, "drawer": 1.43, "ev": 1.33, "fly": 3.5, "bag": 4.0, "page": 3.75, "pin": 3.75, "shake": 4.67, "dice": 5.0, "land": 1.22, "talk": 1.69, "heart": 1.17, "crack": 1.08, "lie": 1.27, "breakdown": 1.33, "slip": 0.93, "chime": 1.0, "powerCut": 1.78, "torch": 6.0, "lock": 2.57, "pry": 1.3, "thunder": 6.8, "night": 1.57, "attack": 0.81, "accuse": 0.97, "win": 1.78, "lose": 1.11, "swell": 1.14, "open": 3.0, "creak": 9.5, "ok": 1.2, "no": 0.9};for(const n in K){const f=SND[n];if(typeof f!=='function')continue;SND[n]=function(...a){const p=this._k;this._k=(p||1)*K[n];try{return f.apply(this,a)}finally{this._k=p}}}})();

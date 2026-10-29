@@ -13,9 +13,8 @@ doAct=function(fn,o={}){if(!G)return doAct30(fn,o);const g=G,r0=G.room,t0=G.time
     if(!p0&&G.flags.power_out)q3('powerCut',300);
     if(l0!==G.light&&G.flags.power_out)S3('torch');
     const h0=Math.floor(t0/60),h1=Math.floor(G.time/60);if(h1>h0&&G.time>=21*60)q3('chime',1400,h1%24);
-    if(G.ev.slice(ev0).some(e=>e.id.startsWith('contra_')))q3('lie',500);
     if(!(G.rolls||[]).length)flush3(120)},o)};
-const dice30=dice3;dice3=function(rolls,done){S3('shake');return dice30(rolls,(...a)=>{flush3(250);return done(...a)})};
+const dice30=dice3;dice3=function(rolls,done){return dice30(rolls,(...a)=>{flush3(250);return done(...a)})};
 const sting30=BGM.sting.bind(BGM);BGM.sting=function(ok){S3('land');return sting30(ok)};
 const nightCheck30=nightCheck;nightCheck=function(t0){const n0=G.log.length;nightCheck30(t0);if(G.log.slice(n0).some(l=>l.cls==='night'))q3(Math.random()<.4?'thunder':'night',200)};
 const searchAs30=searchAs;searchAs=function(Gx,spot,w){S3(/desk|drawer|dresser|sideboard|chest|trunk|wardrobe|counter|bench|crate/.test(String(spot))?'drawer':'search');return searchAs30(Gx,spot,w)};

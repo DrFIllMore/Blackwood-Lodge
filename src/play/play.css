@@ -394,3 +394,19 @@
 @media (prefers-reduced-motion:reduce){.rv3,.rv3 .disc,.rv3 .rays,.arr3{animation:none}}
 .ne3.alt,.na3{display:none}
 #watch3{white-space:nowrap}.rp3 b,.rp3 i{white-space:nowrap}
+
+/* ---------- the answer takes the stage ---------- */
+.talk3.saying .mid3 .choices3,.talk3.saying .bot3{visibility:hidden}
+.say3{position:absolute;left:12px;right:12px;bottom:22px;z-index:8;pointer-events:auto;cursor:pointer;animation:say3 .22s ease-out both}
+.say3 .sb{position:relative;background:#0c0c0ff2;border:3px solid var(--wh);box-shadow:8px 8px 0 var(--red);padding:30px 20px 34px;min-height:150px;max-height:46vh;overflow-y:auto;overflow-x:visible}
+.say3 .nm{position:absolute;z-index:2;left:16px;top:-14px;background:var(--red);color:#fff;font:400 20px var(--bb);letter-spacing:.1em;padding:3px 12px 1px}
+.say3 .sp{margin:6px 0 0;font:600 20px/1.42 var(--in);color:#fff}
+.say3 .sp:before{content:"";display:inline-block}
+.say3 .as{margin:12px 0 0;font:500 15px/1.45 var(--in);font-style:italic;color:#ffffffa8}
+.say3 .as.bad{color:var(--red2)}
+.say3 .more{position:absolute;right:16px;bottom:10px;font:700 10.5px var(--in);font-style:normal;letter-spacing:.16em;color:var(--gold);opacity:0;transition:opacity .2s}
+.say3.done .more{opacity:1}
+.say3 .rs3{position:absolute;z-index:2;right:10px;top:-18px;transform:rotate(3deg);font:400 16px var(--bb);letter-spacing:.08em;padding:3px 10px 1px;border:2px solid #0c0c0f;box-shadow:3px 3px 0 #000}
+.say3 .rs3.ok{background:var(--gold);color:#0c0c0f}.say3 .rs3.no{background:#fff;color:var(--red)}
+@keyframes say3{from{transform:translateY(16px)}to{transform:none}}
+@media (prefers-reduced-motion:reduce){.say3{animation:none}}

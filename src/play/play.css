@@ -446,3 +446,4 @@
 .logbtn3{position:fixed;right:14px;bottom:calc(14px + env(safe-area-inset-bottom));z-index:150;background:none;border:1px solid #ffffff33;color:#ffffff88;font:700 10px var(--in);letter-spacing:.14em;padding:6px 10px}
 @media (prefers-reduced-motion:reduce){.clue3,.clue3 *{animation:none!important}}
 .logbtn3[hidden]{display:none}
+#ntx3 p.arrive{color:#ffc83d;font-weight:600}

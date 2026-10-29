@@ -48,3 +48,26 @@ const satchel3f=satchel;satchel=function(selKey){const open=$('#scr3.sat3w'),inn
 /* the board remembers the clues you haven't looked at yet */
 const board3f=board;board=function(...a){if(G)G._newC=0;newBadge3();return board3f(...a)};
 const refresh3f=refresh;refresh=function(...a){const r=refresh3f(...a);try{newBadge3()}catch(_){}return r};
+
+/* nobody appears from nowhere: footsteps, the door, and the narrator says who came in (or who slipped out) */
+const ENTER3={'Harriet Vane':'Harriet Vane comes in, cigarette holder first, and looks the room over as if it owes her money.',
+ 'Dr. Okafor':'Dr. Okafor steps in with his bag, quiet as a ward round.',
+ 'Tomas Reyes':'Tomas Reyes drifts in and finds a wall to lean on.',
+ 'Iris Lund':'Iris Lund slips in clutching her folder, and stops when she sees you.',
+ 'Colonel Ash':'The tap of a cane. Colonel Ash comes in and plants himself by the door.',
+ 'Nell Parry':'Nell Parry backs through the door with a tea tray, cups rattling.',
+ 'Lionel Crane':'A lantern swings into the room ahead of him. Lionel Crane.',
+ 'Mrs. Dunmore':'Keys jangle. Mrs. Dunmore lets herself in, the way she does every room.',
+ 'Felix Osei':'Felix Osei wanders in, paint on his cuffs, humming under his breath.',
+ 'Agnes Teale':'Agnes Teale comes in checking her watch, as if the night were running late.',
+ 'Piet Hollander':'Piet Hollander edges in, something porcelain cradled in both hands.',
+ 'Marguerite Sol':'Marguerite Sol sweeps in, champagne glass first, and the room goes quiet.'};
+const LEAVE3=['{n} slips out without a word.','{n} leaves. The door clicks shut behind them.','You look up and {n} is gone.'];
+function steps3(n,leaving){try{SND.init();if(!SND.ctx)return;if(leaving){SND.door();for(let i=0;i<3;i++)setTimeout(()=>{try{SND.step()}catch(_){}},350+i*330)}else{for(let i=0;i<3;i++)setTimeout(()=>{try{SND.step()}catch(_){}},i*330);setTimeout(()=>{try{SND.door()}catch(_){}},1050)}}catch(_){}}
+const doAct3w=doAct;doAct=function(fn,o){if(!G)return doAct3w(fn,o);const g=G;let r0,h0;
+  return doAct3w(()=>{r0=G.room;h0=new Set(npcsIn(G,G.room).map(s=>s.id));fn();if(G!==g||G.room!==r0||G.over)return;
+    const now=npcsIn(G,G.room),came=now.filter(s=>!h0.has(s.id)),went=[...h0].filter(id=>!now.some(s=>s.id===id)&&!G.flags['dead_'+id]).map(id=>G.M.sus.find(s=>s.id===id)).filter(Boolean);
+    came.forEach(s=>say(G,ENTER3[s.n]||`Footsteps. ${s.n} comes in.`,'arrive'));
+    went.forEach(s=>{if(P3.talk===s.id)return;say(G,LEAVE3[Math.floor(hash3(s.id+G.time)*LEAVE3.length)].replace('{n}',short(s.n)),'dim')});
+    if(came.length)setTimeout(()=>steps3(came.length,false),250);else if(went.length)setTimeout(()=>steps3(went.length,true),250);
+    if(came.length||went.length)LOG3.ev('guests',{came:came.map(s=>s.id).join(','),went:went.map(s=>s.id).join(',')})},o)};

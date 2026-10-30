@@ -24,17 +24,21 @@ function autoSpots3(r){if(r.spots3)return r.spots3;const T=THREE,w=r.views.wide,
     cand.push({p,score:-Math.abs(d-4.2)})}
   const out=fixed.slice();cand.sort((a,b)=>b.score-a.score);while(out.length<7&&cand.length){let best=null,bd=-1;for(const c of cand){const m=Math.min(...out.map(o=>o.distanceTo(c.p)),99);if(m>bd){bd=m;best=c}}if(!best||bd<.75)break;out.push(best.p);cand.splice(cand.indexOf(best),1)}
   return r.spots3=out}
-function figTex3(s,dir,lt){const f=face3(s),key=[s.n,s.coat,f.expr,dir,lt.side,lt.rim,lt.k].join('|');if(ST3.tex[key])return ST3.tex[key];
-  const T=THREE,cv=document.createElement('canvas');cv.width=384;cv.height=1408;const tx=new T.CanvasTexture(cv);tx.encoding=T.sRGBEncoding;tx.anisotropy=4;ST3.tex[key]=tx;
-  const svg=POSES.POSE[s.n]?POSES.figure(s.n,{coat:s.coat,expr:f.expr,dir,light:lt,size:'width="384" height="1408"'}):PEOPLE.portrait(lookP3(s.n),{full:1,bg:false,coat:s.coat,expr:f.expr,light:lt,size:'width="384" height="1408"'});
-  const img=new Image();img.onload=()=>{cv.getContext('2d').drawImage(img,0,0,384,1408);tx.needsUpdate=true};img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg);
-  const used=new Set(((GL.cur&&GL.cur.st3)||[]).map(o=>o.material&&o.material.map).filter(Boolean));const ks=Object.keys(ST3.tex);for(const k0 of ks){if(Object.keys(ST3.tex).length<=8)break;const old=ST3.tex[k0];if(used.has(old)||old===tx)continue;delete ST3.tex[k0];try{old.dispose()}catch(_){}}return tx}
+/* guests in the room are rim-lit silhouettes at their own height (the portraits appear when you question them) */
+function figDims3(s){const S=window.FIG2&&FIG2.SPEC[s.n];if(!S){const H=(s.height==='tall'?1.84:1.64);return {H,W:H*600/2200,y0:H/2,vb:null}}
+  const yF=160+S.hh*280,personH=S.hh*.235,Hp=personH*(yF+30)/(yF-160);return {H:Hp,W:Hp*900/(yF+30),y0:Hp/2-Hp*30/(yF+30),yF}}
+function figTex3(s,dir,lt){const dk=!!(G&&G.flags.power_out);const rim=lt.rim||(dk?'#6a7aa8':'#d9c8a8');let side=lt.side==='R'?'R':'L';if(dir==='R')side=side==='L'?'R':'L';
+  const key=[s.n,s.coat,dir,side,rim].join('|');if(ST3.tex[key])return ST3.tex[key];
+  const T=THREE,D=figDims3(s),cw=384,ch=D.yF?Math.round(cw*(D.yF+30)/900):1408;const cv=document.createElement('canvas');cv.width=cw;cv.height=ch;const tx=new T.CanvasTexture(cv);tx.encoding=T.sRGBEncoding;tx.anisotropy=4;ST3.tex[key]=tx;
+  const svg=window.FIG2&&FIG2.SPEC[s.n]?FIG2.figure(s.n,{coat:s.coat,dir,silhouette:{rim,side,w:12,eyes:dk?.85:.55},size:`width="${cw}" height="${ch}"`}):PEOPLE.portrait(lookP3(s.n),{full:1,bg:false,coat:s.coat,expr:'calm',light:lt,size:`width="${cw}" height="${ch}"`});
+  const img=new Image();img.onload=()=>{cv.getContext('2d').drawImage(img,0,0,cw,ch);tx.needsUpdate=true};img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg);
+  const used=new Set(((GL.cur&&GL.cur.st3)||[]).map(o=>o.material&&o.material.map).filter(Boolean));const ks=Object.keys(ST3.tex);for(const k0 of ks){if(Object.keys(ST3.tex).length<=10)break;const old=ST3.tex[k0];if(used.has(old)||old===tx)continue;delete ST3.tex[k0];try{old.dispose()}catch(_){}}return tx}
 function clear3(r){if(!r||!r.st3)return;for(const o of r.st3){r.scene.remove(o);if(o.geometry)o.geometry.dispose();if(o.material&&o.material.dispose)o.material.dispose()}r.hits=r.hits.filter(h=>!String(h.userData.tap).startsWith('person:'));r.st3=[]}
 let SHADOW3=null;function shadowTex3(){if(SHADOW3)return SHADOW3;const c=document.createElement('canvas');c.width=c.height=128;const x=c.getContext('2d');const g=x.createRadialGradient(64,64,4,64,64,62);g.addColorStop(0,'rgba(0,0,0,.7)');g.addColorStop(1,'rgba(0,0,0,0)');x.fillStyle=g;x.fillRect(0,0,128,128);return SHADOW3=new THREE.CanvasTexture(c)}
 let QMARK3=null;function qTex3(){if(QMARK3)return QMARK3;const c=document.createElement('canvas');c.width=c.height=128;const x=c.getContext('2d');x.translate(64,64);x.rotate(Math.PI/4);x.fillStyle='#000';x.fillRect(-36,-30,70,70);x.fillStyle='#ffc83d';x.fillRect(-40,-40,70,70);x.rotate(-Math.PI/4);x.fillStyle='#0c0c0f';x.font='400 64px "Bebas Neue", Impact, sans-serif';x.textAlign='center';x.textBaseline='middle';x.fillText('?',-2,2);const t=new THREE.CanvasTexture(c);t.encoding=THREE.sRGBEncoding;return QMARK3=t}
 function place3(){const r=GL.cur;if(ST3.room&&ST3.room!==r&&!GL.rooms[ST3.room.id])ST3.room=null;if(!G||!r||r.id!==G.room||GL.shownRoom!==G.room||!window.POSES)return;
   const here=npcsIn(G,G.room),lt=light3(G.room),dark=!!G.flags.power_out;
-  const sig=[r.id,lt.side,dark,here.map(s=>s.id+':'+face3(s).expr+':'+!!((G.stmts||{})[s.id]||{}).alibi).join(',')].join('|');if(r.st3&&ST3.room===r&&ST3.sig===sig)return;
+  const sig=[r.id,lt.side,dark,here.map(s=>s.id).join(',')].join('|');if(r.st3&&ST3.room===r&&ST3.sig===sig)return;
   clear3(r);ST3.room=r;ST3.sig=sig;r.st3=[];if(!here.length)return;
   const T=THREE,spots=autoSpots3(r);G.spot3=G.spot3||{};const taken={};const map=G.spot3[r.id]=G.spot3[r.id]||{};
   const pos={};let extra=0;for(const s of here){let i=map[s.id];if(i==null||i>=spots.length||taken[i]){i=spots.findIndex((_,k)=>!taken[k]);if(i>=0)map[s.id]=i}if(i>=0){taken[i]=1;pos[s.id]=spots[i]}else{const base=spots[extra%Math.max(1,spots.length)]||new T.Vector3(...r.views.wide.t).setY(0);const rr=new T.Vector3().subVectors(new T.Vector3(...r.views.wide.t),new T.Vector3(...r.views.wide.p)).cross(new T.Vector3(0,1,0)).normalize();pos[s.id]=base.clone().add(rr.multiplyScalar((extra%2?-1:1)*(.55+.2*Math.floor(extra/2))));extra++}}
@@ -44,15 +48,14 @@ function place3(){const r=GL.cur;if(ST3.room&&ST3.room!==r&&!GL.rooms[ST3.room.i
     /* face whoever is nearest; alone, face into the room */
     let other=null,bd=1e9;for(const o of here){if(o===s)continue;const d=pos[o.id].distanceTo(p);if(d<bd){bd=d;other=o}}
     const dir=other?(sx(pos[other.id])>sx(p)?'R':'L'):(sx(p)<sx(camT)?'R':'L');
-    const H=(s.height==='tall'?1.84:1.64)*2200/2175,W=H*600/2200;
-    const mat=new T.MeshStandardMaterial({map:figTex3(s,dir,lt),alphaTest:.5,roughness:1,metalness:0,side:T.DoubleSide,emissive:'#ffffff',emissiveMap:null,emissiveIntensity:0});
-    mat.emissiveMap=mat.map;mat.emissiveIntensity=dark?0:.16;
-    const m=new T.Mesh(new T.PlaneGeometry(W,H),mat);m.rotation.order='YXZ';m.position.set(p.x,H/2-.012,p.z);m.userData.st3=1;m.castShadow=false;
+    const D=figDims3(s),H=D.H,W=D.W;
+    const mat=new T.MeshBasicMaterial({map:figTex3(s,dir,lt),alphaTest:.35,side:T.DoubleSide});
+    const m=new T.Mesh(new T.PlaneGeometry(W,H),mat);m.rotation.order='YXZ';m.position.set(p.x,D.y0-.006,p.z);m.userData.st3=1;m.castShadow=false;
     m.onBeforeRender=(rr,sc,c)=>{const dx=c.position.x-m.position.x,dz=c.position.z-m.position.z;m.rotation.set(0,Math.atan2(dx,dz),0);const pitch=Math.atan2(c.position.y-m.position.y,Math.hypot(dx,dz));if(pitch>.8)m.rotation.x=-(pitch-.8)};
     r.scene.add(m);r.st3.push(m);
-    const sh=new T.Mesh(new T.PlaneGeometry(W*1.3,W*.62),new T.MeshBasicMaterial({map:shadowTex3(),transparent:true,depthWrite:false,opacity:dark?.5:.8}));sh.rotation.x=-Math.PI/2;sh.position.set(p.x,.013,p.z);sh.userData.st3=1;r.scene.add(sh);r.st3.push(sh);
-    if(!((G.stmts||{})[s.id]||{}).alibi){const q=new T.Sprite(new T.SpriteMaterial({map:qTex3(),depthTest:false,transparent:true}));q.scale.set(.26,.26,1);q.position.set(p.x,H+.04,p.z);q.renderOrder=9;q.userData.st3=1;r.scene.add(q);r.st3.push(q)}
-    const hit=new T.Mesh(new T.SphereGeometry(1,8,6),new T.MeshBasicMaterial());hit.scale.set(W*.6,H*.5,W*.6);hit.position.set(p.x,H*.52,p.z);hit.visible=false;hit.userData={tap:'person:'+s.id,view:null};r.scene.add(hit);r.st3.push(hit);r.hits.push(hit)}
+    const sh=new T.Mesh(new T.PlaneGeometry(W*.8,W*.36),new T.MeshBasicMaterial({map:shadowTex3(),transparent:true,depthWrite:false,opacity:dark?.5:.8}));sh.rotation.x=-Math.PI/2;sh.position.set(p.x,.013,p.z);sh.userData.st3=1;r.scene.add(sh);r.st3.push(sh);
+    if(false){const q=new T.Sprite(new T.SpriteMaterial({map:qTex3(),depthTest:false,transparent:true}));q.scale.set(.26,.26,1);q.position.set(p.x,H+.04,p.z);q.renderOrder=9;q.userData.st3=1;r.scene.add(q);r.st3.push(q)}
+    const hit=new T.Mesh(new T.SphereGeometry(1,8,6),new T.MeshBasicMaterial());hit.scale.set(W*.3,H*.5,W*.3);hit.position.set(p.x,H*.5,p.z);hit.visible=false;hit.userData={tap:'person:'+s.id,view:null};r.scene.add(hit);r.st3.push(hit);r.hits.push(hit)}
   try{GL.r.shadowMap.needsUpdate=true}catch(_){}}
 setInterval(()=>{try{if(G&&!G.over&&!P3.talk&&!P3.busy&&$('#play')&&!$('#play').hidden)place3()}catch(e){console.warn(e)}},400);
 /* tapping a guest in the room opens the questioning */

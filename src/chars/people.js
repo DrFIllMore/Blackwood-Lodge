@@ -289,7 +289,7 @@ function lower(L,o,sk,skS,part){const c=COATC[o.coat||'dark'],pale=o.coat==='pal
    +`<path ${ink} stroke-width="3.5" fill="#efe9de" d="M462 1270 L548 1266 L550 1294 L464 1298 Z"/><path ${ink} stroke-width="4" fill="${skS}" d="M470 1296 C466 1334 470 1372 484 1398 C494 1414 512 1418 524 1406 C538 1390 544 1360 542 1326 L540 1294 Z"/><path ${ink} fill="none" stroke-width="2" d="M496 1356 C502 1380 512 1392 522 1396"/>`;
  return out}}
 function portrait(L,o){
- o=o||{};const LT=o.light||{side:'L',rim:'#e3243b',k:1};const lside=LT.side||'L';const shk=LT.k==null?1:LT.k;
+ o=o||{};const LT=o.light||{side:'L',rim:null,k:1};const lside=LT.side||'L';const shk=LT.k==null?1:LT.k;
  const refl=lside==='R'?'translate(598 0) scale(-1 1)':'';const sex=L.sex||'f',ex=o.expr||L.expr||'calm',E=EMO[ex]||EMO.calm,dead=o.dead;
  const sk0=dead?mix(L.skin,'#a9b4bd',.38):E.pale?mix(L.skin,'#e8e4dc',.22):L.skin,sk=sk0,s1=mix(sk,'#fff',.08),s2=mix(sk,'#7a3a30',.28),s3=mix(sk,'#120a14',.78);
  const h1=L.hairC||'#3a2418',h2=mix(h1,'#000',.5),hl=L.grey?mix(h1,'#000',.35):mix(h1,'#fff',.28);
@@ -371,7 +371,7 @@ ${lside==='L'&&o.light?`<path class="rim" stroke-width="4.5" d="M240 206 C228 23
 </g>
 ${o.posed?'':gesture(o.pose||E.pose,C,s1,s2)}${o.after||''}</g>
 </svg>`;
- const u='p'+(++CNT);const rc=LT.rim||'none';
+ const u='p'+(++CNT);const rc='none';
  return svg.replace(/stroke="#e3243b"/g,`stroke="${o.light&&lside!=='R'?'none':rc}"`).replace('.rim{fill:none;stroke:#e3243b','.rim{fill:none;stroke:'+rc).replace(/(<pattern id="htr"[^>]*><circle[^>]*fill=")#e3243b/,'$1'+(o.light?'#0c0c0f':'#e3243b')).replace(/\b(sk1|sk2|sk3|hr1|hr2|hrl|ink|rim)\b(?=[^"]*"|[{])/g,'$1'+u).replace(/id="(\w+)"/g,'id="$1'+u+'"').replace(/url\(#(\w+)\)/g,'url(#$1'+u+')');
 }
 let CNT=0;

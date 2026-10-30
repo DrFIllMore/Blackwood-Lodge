@@ -52,7 +52,7 @@ function navTick3(){requestAnimationFrame(navTick3);const h=$('#nav3');if(!G||$(
 requestAnimationFrame(navTick3);
 /* the room's name: a big card when you walk in, then a bold plate under the clock */
 function arrive3(){if(!G||V.intro||G.room===N3.last)return;N3.last=G.room;$('#arr3')?.remove();
-  $('#play').insertAdjacentHTML('beforeend',`<div class="arr3" id="arr3" aria-hidden="true"><div class="band"></div><div class="tx"><small>${FLOOR3[G.room]||''}</small><b>${ROOMS[G.room].n.toUpperCase()}</b><i>${fmtT(G.time)}</i></div></div>`);
+  $('#play').insertAdjacentHTML('beforeend',`<div class="arr3" id="arr3" aria-hidden="true"><div class="band"><div class="tx"><small>${FLOOR3[G.room]||''}</small><b>${ROOMS[G.room].n.toUpperCase()}</b><i>${fmtT(G.time)}</i></div></div></div>`);
   setTimeout(()=>{const a=$('#arr3');if(a){a.classList.add('out');setTimeout(()=>a.remove(),400)}},1500)}
 setInterval(()=>{try{if(G&&!G.over&&!$('#play').hidden&&GL.shownRoom===G.room&&!P3.busy)arrive3()}catch(_){}},200);
 const startGame3n=startGame;startGame=function(...a){N3.last=null;N3.room=null;return startGame3n(...a)};

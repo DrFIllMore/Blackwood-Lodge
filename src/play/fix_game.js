@@ -37,7 +37,7 @@ function logScreen3(){const n=LOG3.buf().length,errs=LOG3.buf().filter(e=>/error
 window.logScreen3=logScreen3;
 (()=>{let t=0;document.addEventListener('pointerdown',e=>{if(e.target.closest&&e.target.closest('#watch3,.logbtn3')){clearTimeout(t);t=setTimeout(logScreen3,700)}},true);['pointerup','pointercancel','pointerleave'].forEach(k=>document.addEventListener(k,()=>clearTimeout(t),true));
   document.addEventListener('click',e=>{if(e.target.closest&&e.target.closest('.logbtn3'))logScreen3()},true);
-  const add=()=>{let b=document.querySelector('.logbtn3');if(!b){document.body.insertAdjacentHTML('beforeend','<button class="logbtn3" type="button" aria-label="Problem log" hidden>PROBLEM LOG</button>');b=document.querySelector('.logbtn3')}const pl=document.querySelector('#play');b.hidden=!!(pl&&!pl.hidden)};setInterval(add,700);add()})();
+  const add=()=>{let b=document.querySelector('.logbtn3');if(!b){document.body.insertAdjacentHTML('beforeend','<button class="logbtn3" type="button" aria-label="Problem log" hidden>PROBLEM LOG</button>');b=document.querySelector('.logbtn3')}const ti=document.querySelector('#title'),pl=document.querySelector('#play'),vis=e=>e&&!e.hidden&&getComputedStyle(e).display!=='none';b.hidden=!(vis(ti)&&!vis(pl)&&!document.querySelector('.file3'))};setInterval(add,700);add()})();
 
 /* the satchel: choosing a thing changes the label in place, the sheet stays where it is */
 const satchel3f=satchel;satchel=function(selKey){const open=$('#scr3.sat3w'),inner=open&&open.querySelector('.sat3'),y=inner?inner.scrollTop:0;
@@ -81,3 +81,11 @@ const accuseSheet3f=accuseSheet;accuseSheet=function(forced,...a){if(G)G._accBac
   acc.querySelectorAll('[data-p]').forEach(b=>b.onclick=()=>{const f=b.dataset.p,fr=!!forced;G._accBack=fr?'forced':'open';if(f==='board')board();else if(f==='journal')journal();else satchel();G._accBack=fr?'forced':'open'});
   return r};
 document.addEventListener('click',e=>{if(!G||!G._accBack||G.over)return;const t=e.target.closest&&e.target.closest('#scr3 .close3,#scrimh3');if(!t||$('#scr3 .acc3'))return;const f=G._accBack==='forced';setTimeout(()=>{if(G&&!G.over&&!$('#scr3 .acc3'))accuseSheet(f)},30)});
+
+/* play trace: every choice the player makes, where, when and what came of it, so a session can be replayed from the log */
+document.addEventListener('click',e=>{try{const b=e.target.closest&&e.target.closest('button,[data-k],[data-s],[data-w]');if(!b||b.closest('#log3w'))return;
+  const t=(b.getAttribute('aria-label')||b.innerText||'').replace(/\s+/g,' ').trim().slice(0,70);if(!t)return;LOG3.ev('tap',{t,scr:(b.closest('[id]')||{}).id||''})}catch(_){}},true);
+const doAct3t=doAct;doAct=function(fn,o){if(!G)return doAct3t(fn,o);const t0=G.time,r0=G.room,n0=G.log.length,e0=G.ev.length,h0=G.hp,v0=G.nerve;const r=doAct3t(fn,o);
+  try{if(G){const said=G.log.slice(n0).map(l=>String(l.t).replace(/<[^>]+>/g,'')).join(' / ').slice(0,240);LOG3.ev('act',{mins:G.time-t0,to:G.room!==r0?G.room:undefined,ev:G.ev.slice(e0).map(e=>e.id).join(',')||undefined,hp:G.hp!==h0?G.hp-h0:undefined,nerve:G.nerve!==v0?Math.round((G.nerve-v0)*10)/10:undefined,said})}}catch(_){}return r};
+const openTalk3t=openTalk;openTalk=function(sid,...a){try{LOG3.ev('talk',{who:(G.M.sus.find(s=>s.id===sid)||{}).n})}catch(_){}return openTalk3t(sid,...a)};
+const accuse3t=accuse;accuse=function(Gx,sid,wid,...a){try{LOG3.ev('accuse',{who:(Gx.M.sus.find(s=>s.id===sid)||{}).n,weapon:wid,right:sid===Gx.M.killer&&wid===Gx.M.weapon.id,proofs:typeof proofCount==='function'?proofCount():undefined})}catch(_){}return accuse3t(Gx,sid,wid,...a)};

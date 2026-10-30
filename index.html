@@ -611,7 +611,7 @@ canvas#sc{width:100%;height:100%;display:block}
 @keyframes cl3st{from{transform:rotate(-14deg) skewX(-10deg) scale(2.4)}to{transform:rotate(-4deg) skewX(-10deg)}}
 @keyframes cl3cd{from{transform:skewX(-4deg) translateX(-60px);clip-path:inset(0 100% 0 0)}to{transform:skewX(-4deg);clip-path:inset(0 0 0 0)}}
 #dbrd3{position:relative}
-.new3{position:absolute;top:-8px;right:4px;min-width:22px;height:20px;padding:0 5px;box-sizing:border-box;background:var(--red);color:#fff;font:400 15px/21px var(--bb);font-style:normal;letter-spacing:.04em;transform:skewX(-8deg);box-shadow:2px 2px 0 #000;pointer-events:none}
+#dbrd3 .nbadge3{position:absolute;top:-8px;right:4px;min-width:22px;height:20px;padding:0 5px;box-sizing:border-box;background:var(--red);color:#fff;font:400 15px/21px var(--bb);font-style:normal;letter-spacing:.04em;transform:skewX(-8deg);box-shadow:2px 2px 0 #000;pointer-events:none}
 /* the satchel stays put when you pick something */
 .still3,.still3 *{animation:none!important}
 /* problem log */
@@ -641,6 +641,11 @@ canvas#sc{width:100%;height:100%;display:block}
 .peek3{display:flex;gap:8px}
 .peek3 button{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;background:#0c0c0f;border:2px solid var(--gold);color:var(--wh);padding:8px 4px 6px;font:400 16px var(--bb);letter-spacing:.06em;cursor:pointer}
 .peek3 svg{width:16px;height:16px;color:var(--gold)}
+
+/* arrival card: the name sits in the middle of the band */
+.arr3 .band{display:flex;align-items:center;justify-content:center}
+.arr3 .band .tx{position:static;left:auto;right:auto;top:auto;transform:skewY(6deg);text-align:center;display:flex;flex-direction:column;align-items:center;gap:2px;animation:arr3t2 .4s .08s ease-out both}
+@keyframes arr3t2{from{opacity:1;clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 0 0 0)}}
 </style>
 <div id="app"><div class="scene" id="title" hidden></div><div class="scene" id="home"></div><div class="scene" id="play" hidden></div><div class="toast" id="toast"></div></div>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
@@ -5421,7 +5426,7 @@ function clueNext3(){const e=CQ3.shift();if(!e||!G){CQ3on=false;return}CQ3on=tru
     if(tgt&&cd){const a=cd.getBoundingClientRect(),b=tgt.getBoundingClientRect();cd.style.transition='transform .45s cubic-bezier(.5,0,.8,.6)';cd.style.transform=`translate(${b.left+b.width/2-a.left-a.width/2}px,${b.top+b.height/2-a.top-a.height/2}px) scale(.12) rotate(-8deg)`}
     el.classList.add('out');setTimeout(()=>{el.remove();if(G===g){G._newC=(G._newC||0)+1;newBadge3();const t=$('#dbrd3');if(t){t.classList.remove('pulse3');void t.offsetWidth;t.classList.add('pulse3')}try{SND.pin()}catch(_){}}clueNext3()},470)};
   el.addEventListener('click',go)}
-function newBadge3(){const t=$('#dbrd3');if(!t||!G)return;let b=t.querySelector('.new3');const n=G._newC||0;if(!n){b&&b.remove();return}if(!b){b=document.createElement('i');b.className='new3';t.appendChild(b)}b.textContent='+'+n}
+function newBadge3(){const t=$('#dbrd3');if(!t||!G)return;let b=t.querySelector('.nbadge3');const n=G._newC||0;if(!n){b&&b.remove();return}if(!b){b=document.createElement('i');b.className='nbadge3';t.appendChild(b)}b.textContent='+'+n}
 /* ---------- the screen ---------- */
 function meHTML(){const lit=Math.ceil(G.nerve/2);let n='';for(let i=0;i<5;i++)n+=`<i class="${i<lit?'on':''}"></i>`;let h='';for(let i=0;i<G.hpMax;i++)h+=`<i class="${i<G.hp?'on':''}"></i>`;
   return `<span class="bars3"><span class="br"><b>NERVE</b><span class="nv" aria-label="Nerve ${Math.round(G.nerve)} of 10">${n}</span></span><span class="br"><b class="r">HEALTH</b><span class="hpb" aria-label="Health ${G.hp} of ${G.hpMax}">${h}</span></span></span><span class="pf3">${meSil}</span>`}
@@ -5771,7 +5776,7 @@ function navTick3(){requestAnimationFrame(navTick3);const h=$('#nav3');if(!G||$(
 requestAnimationFrame(navTick3);
 /* the room's name: a big card when you walk in, then a bold plate under the clock */
 function arrive3(){if(!G||V.intro||G.room===N3.last)return;N3.last=G.room;$('#arr3')?.remove();
-  $('#play').insertAdjacentHTML('beforeend',`<div class="arr3" id="arr3" aria-hidden="true"><div class="band"></div><div class="tx"><small>${FLOOR3[G.room]||''}</small><b>${ROOMS[G.room].n.toUpperCase()}</b><i>${fmtT(G.time)}</i></div></div>`);
+  $('#play').insertAdjacentHTML('beforeend',`<div class="arr3" id="arr3" aria-hidden="true"><div class="band"><div class="tx"><small>${FLOOR3[G.room]||''}</small><b>${ROOMS[G.room].n.toUpperCase()}</b><i>${fmtT(G.time)}</i></div></div></div>`);
   setTimeout(()=>{const a=$('#arr3');if(a){a.classList.add('out');setTimeout(()=>a.remove(),400)}},1500)}
 setInterval(()=>{try{if(G&&!G.over&&!$('#play').hidden&&GL.shownRoom===G.room&&!P3.busy)arrive3()}catch(_){}},200);
 const startGame3n=startGame;startGame=function(...a){N3.last=null;N3.room=null;return startGame3n(...a)};
@@ -5926,7 +5931,7 @@ const ending30=ending;ending=function(...a){if(G&&['wrong','weak','dead'].includ
 /* the score follows the night even between taps */
 setInterval(()=>{try{if(BGM.ctx)BGM.set(bgmMode())}catch(_){}},1200);
 
-window.BUILD3='2026-10-30 08:10';
+window.BUILD3='2026-10-30 14:48';
 /* ---------- problem log: what really happened on the player's phone ---------- */
 const LOG3=(()=>{const KEY='bw_log3',sid=Date.now().toString(36)+Math.random().toString(36).slice(2,6);let buf=[],dirty=false,sent=0,saveT=0;
   try{buf=JSON.parse(localStorage.getItem(KEY)||'[]')||[]}catch(_){buf=[]}
@@ -5966,7 +5971,7 @@ function logScreen3(){const n=LOG3.buf().length,errs=LOG3.buf().filter(e=>/error
 window.logScreen3=logScreen3;
 (()=>{let t=0;document.addEventListener('pointerdown',e=>{if(e.target.closest&&e.target.closest('#watch3,.logbtn3')){clearTimeout(t);t=setTimeout(logScreen3,700)}},true);['pointerup','pointercancel','pointerleave'].forEach(k=>document.addEventListener(k,()=>clearTimeout(t),true));
   document.addEventListener('click',e=>{if(e.target.closest&&e.target.closest('.logbtn3'))logScreen3()},true);
-  const add=()=>{let b=document.querySelector('.logbtn3');if(!b){document.body.insertAdjacentHTML('beforeend','<button class="logbtn3" type="button" aria-label="Problem log" hidden>PROBLEM LOG</button>');b=document.querySelector('.logbtn3')}const pl=document.querySelector('#play');b.hidden=!!(pl&&!pl.hidden)};setInterval(add,700);add()})();
+  const add=()=>{let b=document.querySelector('.logbtn3');if(!b){document.body.insertAdjacentHTML('beforeend','<button class="logbtn3" type="button" aria-label="Problem log" hidden>PROBLEM LOG</button>');b=document.querySelector('.logbtn3')}const ti=document.querySelector('#title'),pl=document.querySelector('#play'),vis=e=>e&&!e.hidden&&getComputedStyle(e).display!=='none';b.hidden=!(vis(ti)&&!vis(pl)&&!document.querySelector('.file3'))};setInterval(add,700);add()})();
 
 /* the satchel: choosing a thing changes the label in place, the sheet stays where it is */
 const satchel3f=satchel;satchel=function(selKey){const open=$('#scr3.sat3w'),inner=open&&open.querySelector('.sat3'),y=inner?inner.scrollTop:0;
@@ -6010,6 +6015,14 @@ const accuseSheet3f=accuseSheet;accuseSheet=function(forced,...a){if(G)G._accBac
   acc.querySelectorAll('[data-p]').forEach(b=>b.onclick=()=>{const f=b.dataset.p,fr=!!forced;G._accBack=fr?'forced':'open';if(f==='board')board();else if(f==='journal')journal();else satchel();G._accBack=fr?'forced':'open'});
   return r};
 document.addEventListener('click',e=>{if(!G||!G._accBack||G.over)return;const t=e.target.closest&&e.target.closest('#scr3 .close3,#scrimh3');if(!t||$('#scr3 .acc3'))return;const f=G._accBack==='forced';setTimeout(()=>{if(G&&!G.over&&!$('#scr3 .acc3'))accuseSheet(f)},30)});
+
+/* play trace: every choice the player makes, where, when and what came of it, so a session can be replayed from the log */
+document.addEventListener('click',e=>{try{const b=e.target.closest&&e.target.closest('button,[data-k],[data-s],[data-w]');if(!b||b.closest('#log3w'))return;
+  const t=(b.getAttribute('aria-label')||b.innerText||'').replace(/\s+/g,' ').trim().slice(0,70);if(!t)return;LOG3.ev('tap',{t,scr:(b.closest('[id]')||{}).id||''})}catch(_){}},true);
+const doAct3t=doAct;doAct=function(fn,o){if(!G)return doAct3t(fn,o);const t0=G.time,r0=G.room,n0=G.log.length,e0=G.ev.length,h0=G.hp,v0=G.nerve;const r=doAct3t(fn,o);
+  try{if(G){const said=G.log.slice(n0).map(l=>String(l.t).replace(/<[^>]+>/g,'')).join(' / ').slice(0,240);LOG3.ev('act',{mins:G.time-t0,to:G.room!==r0?G.room:undefined,ev:G.ev.slice(e0).map(e=>e.id).join(',')||undefined,hp:G.hp!==h0?G.hp-h0:undefined,nerve:G.nerve!==v0?Math.round((G.nerve-v0)*10)/10:undefined,said})}}catch(_){}return r};
+const openTalk3t=openTalk;openTalk=function(sid,...a){try{LOG3.ev('talk',{who:(G.M.sus.find(s=>s.id===sid)||{}).n})}catch(_){}return openTalk3t(sid,...a)};
+const accuse3t=accuse;accuse=function(Gx,sid,wid,...a){try{LOG3.ev('accuse',{who:(Gx.M.sus.find(s=>s.id===sid)||{}).n,weapon:wid,right:sid===Gx.M.killer&&wid===Gx.M.weapon.id,proofs:typeof proofCount==='function'?proofCount():undefined})}catch(_){}return accuse3t(Gx,sid,wid,...a)};
 
 window.addEventListener('resize',()=>{if(G&&!$('#play').hidden)setupCanvas()});
 renderTitle();

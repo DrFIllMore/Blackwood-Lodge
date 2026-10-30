@@ -431,7 +431,7 @@
 @keyframes cl3st{from{transform:rotate(-14deg) skewX(-10deg) scale(2.4)}to{transform:rotate(-4deg) skewX(-10deg)}}
 @keyframes cl3cd{from{transform:skewX(-4deg) translateX(-60px);clip-path:inset(0 100% 0 0)}to{transform:skewX(-4deg);clip-path:inset(0 0 0 0)}}
 #dbrd3{position:relative}
-.new3{position:absolute;top:-8px;right:4px;min-width:22px;height:20px;padding:0 5px;box-sizing:border-box;background:var(--red);color:#fff;font:400 15px/21px var(--bb);font-style:normal;letter-spacing:.04em;transform:skewX(-8deg);box-shadow:2px 2px 0 #000;pointer-events:none}
+#dbrd3 .nbadge3{position:absolute;top:-8px;right:4px;min-width:22px;height:20px;padding:0 5px;box-sizing:border-box;background:var(--red);color:#fff;font:400 15px/21px var(--bb);font-style:normal;letter-spacing:.04em;transform:skewX(-8deg);box-shadow:2px 2px 0 #000;pointer-events:none}
 /* the satchel stays put when you pick something */
 .still3,.still3 *{animation:none!important}
 /* problem log */
@@ -461,3 +461,8 @@
 .peek3{display:flex;gap:8px}
 .peek3 button{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;background:#0c0c0f;border:2px solid var(--gold);color:var(--wh);padding:8px 4px 6px;font:400 16px var(--bb);letter-spacing:.06em;cursor:pointer}
 .peek3 svg{width:16px;height:16px;color:var(--gold)}
+
+/* arrival card: the name sits in the middle of the band */
+.arr3 .band{display:flex;align-items:center;justify-content:center}
+.arr3 .band .tx{position:static;left:auto;right:auto;top:auto;transform:skewY(6deg);text-align:center;display:flex;flex-direction:column;align-items:center;gap:2px;animation:arr3t2 .4s .08s ease-out both}
+@keyframes arr3t2{from{opacity:1;clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 0 0 0)}}

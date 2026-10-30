@@ -240,7 +240,7 @@ function clueNext3(){const e=CQ3.shift();if(!e||!G){CQ3on=false;return}CQ3on=tru
     if(tgt&&cd){const a=cd.getBoundingClientRect(),b=tgt.getBoundingClientRect();cd.style.transition='transform .45s cubic-bezier(.5,0,.8,.6)';cd.style.transform=`translate(${b.left+b.width/2-a.left-a.width/2}px,${b.top+b.height/2-a.top-a.height/2}px) scale(.12) rotate(-8deg)`}
     el.classList.add('out');setTimeout(()=>{el.remove();if(G===g){G._newC=(G._newC||0)+1;newBadge3();const t=$('#dbrd3');if(t){t.classList.remove('pulse3');void t.offsetWidth;t.classList.add('pulse3')}try{SND.pin()}catch(_){}}clueNext3()},470)};
   el.addEventListener('click',go)}
-function newBadge3(){const t=$('#dbrd3');if(!t||!G)return;let b=t.querySelector('.new3');const n=G._newC||0;if(!n){b&&b.remove();return}if(!b){b=document.createElement('i');b.className='new3';t.appendChild(b)}b.textContent='+'+n}
+function newBadge3(){const t=$('#dbrd3');if(!t||!G)return;let b=t.querySelector('.nbadge3');const n=G._newC||0;if(!n){b&&b.remove();return}if(!b){b=document.createElement('i');b.className='nbadge3';t.appendChild(b)}b.textContent='+'+n}
 /* ---------- the screen ---------- */
 function meHTML(){const lit=Math.ceil(G.nerve/2);let n='';for(let i=0;i<5;i++)n+=`<i class="${i<lit?'on':''}"></i>`;let h='';for(let i=0;i<G.hpMax;i++)h+=`<i class="${i<G.hp?'on':''}"></i>`;
   return `<span class="bars3"><span class="br"><b>NERVE</b><span class="nv" aria-label="Nerve ${Math.round(G.nerve)} of 10">${n}</span></span><span class="br"><b class="r">HEALTH</b><span class="hpb" aria-label="Health ${G.hp} of ${G.hpMax}">${h}</span></span></span><span class="pf3">${meSil}</span>`}

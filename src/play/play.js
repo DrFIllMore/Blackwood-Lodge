@@ -234,12 +234,12 @@ function flyNew(ev0,it0){const items=(G.items||[]).slice(it0).map(it=>({t:TOOLS[
 const CQ3=[];let CQ3on=false;
 function clue3(list){list.forEach(e=>CQ3.push(e));if(!CQ3on)clueNext3()}
 function clueNext3(){const e=CQ3.shift();if(!e||!G){CQ3on=false;return}CQ3on=true;const g=G;const contra=/^contra_/.test(e.id);let name='A note';try{name=evName(e)}catch(_){}const txt=String(e.t||'').replace(/<[^>]+>/g,'');
-  $('#clue3')?.remove();$('#play').insertAdjacentHTML('beforeend',`<div class="clue3 ${contra?'contra':''}" id="clue3" role="status" aria-live="polite"><div class="stamp"><span>${contra?'CONTRADICTION':'NEW CLUE'}</span></div><div class="card"><div class="ic">${ITEMS.svg('magnifier',56)}</div><b>${name.toUpperCase()}</b><p>${txt.length>130?txt.slice(0,127)+'…':txt}</p><small>PINNED TO YOUR BOARD</small></div></div>`);
+  $('#clue3')?.remove();$('#play').insertAdjacentHTML('beforeend',`<div class="clue3 ${contra?'contra':''}" id="clue3" role="status" aria-live="polite"><div class="stamp"><span>${contra?'CONTRADICTION':'NEW CLUE'}</span></div><div class="card"><div class="ic">${ITEMS.svg('magnifier',56)}</div><b>${name.toUpperCase()}</b><p>${txt.length>130?txt.slice(0,127)+'…':txt}</p><small>PINNED TO YOUR BOARD · TAP TO CONTINUE</small></div></div>`);
   try{SND.clue(contra)}catch(_){}if(window.LOG3)LOG3.ev('clue',{id:e.id});
   const el=$('#clue3');let gone=false;const go=()=>{if(gone)return;gone=true;const tgt=$('#dbrd3'),cd=el.querySelector('.card');
     if(tgt&&cd){const a=cd.getBoundingClientRect(),b=tgt.getBoundingClientRect();cd.style.transition='transform .45s cubic-bezier(.5,0,.8,.6)';cd.style.transform=`translate(${b.left+b.width/2-a.left-a.width/2}px,${b.top+b.height/2-a.top-a.height/2}px) scale(.12) rotate(-8deg)`}
     el.classList.add('out');setTimeout(()=>{el.remove();if(G===g){G._newC=(G._newC||0)+1;newBadge3();const t=$('#dbrd3');if(t){t.classList.remove('pulse3');void t.offsetWidth;t.classList.add('pulse3')}try{SND.pin()}catch(_){}}clueNext3()},470)};
-  el.addEventListener('click',go);setTimeout(go,window.__noAuto?1e9:2600)}
+  el.addEventListener('click',go)}
 function newBadge3(){const t=$('#dbrd3');if(!t||!G)return;let b=t.querySelector('.new3');const n=G._newC||0;if(!n){b&&b.remove();return}if(!b){b=document.createElement('i');b.className='new3';t.appendChild(b)}b.textContent='+'+n}
 /* ---------- the screen ---------- */
 function meHTML(){const lit=Math.ceil(G.nerve/2);let n='';for(let i=0;i<5;i++)n+=`<i class="${i<lit?'on':''}"></i>`;let h='';for(let i=0;i<G.hpMax;i++)h+=`<i class="${i<G.hp?'on':''}"></i>`;

@@ -71,3 +71,13 @@ const doAct3w=doAct;doAct=function(fn,o){if(!G)return doAct3w(fn,o);const g=G;le
     went.forEach(s=>{if(P3.talk===s.id)return;say(G,LEAVE3[Math.floor(hash3(s.id+G.time)*LEAVE3.length)].replace('{n}',short(s.n)),'dim')});
     if(came.length)setTimeout(()=>steps3(came.length,false),250);else if(went.length)setTimeout(()=>steps3(went.length,true),250);
     if(came.length||went.length)LOG3.ev('guests',{came:came.map(s=>s.id).join(','),went:went.map(s=>s.id).join(',')})},o)};
+
+/* dawn: before you name them, you can still look at the board, the notebook and the satchel; closing any of them brings you back */
+const accuseSheet3f=accuseSheet;accuseSheet=function(forced,...a){if(G)G._accBack=false;const r=accuseSheet3f(forced,...a);const acc=$('#scr3 .acc3');if(!acc||!G)return r;
+  const sel=G._accSel||(G._accSel={});
+  acc.querySelectorAll('[data-s]').forEach(b=>b.addEventListener('click',()=>{sel.s=b.dataset.s}));acc.querySelectorAll('[data-w]').forEach(b=>b.addEventListener('click',()=>{sel.w=b.dataset.w}));
+  if(sel.s)acc.querySelector(`[data-s="${sel.s}"]`)?.click();if(sel.w)acc.querySelector(`[data-w="${sel.w}"]`)?.click();
+  const sub=acc.querySelector('.sub');sub&&sub.insertAdjacentHTML('afterend',`<div class="peek3"><button type="button" data-p="board">${DOCK.brd}<span>BOARD</span></button><button type="button" data-p="journal">${DOCK.nb}<span>NOTEBOOK</span></button><button type="button" data-p="satchel">${DOCK.sat}<span>SATCHEL</span></button></div>`);
+  acc.querySelectorAll('[data-p]').forEach(b=>b.onclick=()=>{const f=b.dataset.p,fr=!!forced;G._accBack=fr?'forced':'open';if(f==='board')board();else if(f==='journal')journal();else satchel();G._accBack=fr?'forced':'open'});
+  return r};
+document.addEventListener('click',e=>{if(!G||!G._accBack||G.over)return;const t=e.target.closest&&e.target.closest('#scr3 .close3,#scrimh3');if(!t||$('#scr3 .acc3'))return;const f=G._accBack==='forced';setTimeout(()=>{if(G&&!G.over&&!$('#scr3 .acc3'))accuseSheet(f)},30)});

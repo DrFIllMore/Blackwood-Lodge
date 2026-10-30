@@ -627,6 +627,20 @@ canvas#sc{width:100%;height:100%;display:block}
 @media (prefers-reduced-motion:reduce){.clue3,.clue3 *{animation:none!important}}
 .logbtn3[hidden]{display:none}
 #ntx3 p.arrive{color:#ffc83d;font-weight:600}
+
+/* room signs: small, see-through tabs at the edges so the room stays visible */
+.ne3 em{width:26px;height:46px;background:#e3243bd0}
+.ne3 em svg{width:13px;height:19px}
+.ne3 span{background:#0c0c0f8c;padding:3px 8px 2px;border-width:1px;border-color:#ffffff55}
+.nav3 .ne3 b{font-size:15px}
+.nav3 .ne3 i,.nav3 .nb3 i{display:none}
+.nb3{background:#0c0c0f8c!important;border:1px solid #ffffff55!important;padding:2px 10px 1px!important;gap:5px}
+.nb3 b{font-size:14px}.nb3 svg{width:12px;height:9px}
+.nav3 button{opacity:.9}
+/* dawn: look before you name them */
+.peek3{display:flex;gap:8px}
+.peek3 button{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;background:#0c0c0f;border:2px solid var(--gold);color:var(--wh);padding:8px 4px 6px;font:400 16px var(--bb);letter-spacing:.06em;cursor:pointer}
+.peek3 svg{width:16px;height:16px;color:var(--gold)}
 </style>
 <div id="app"><div class="scene" id="title" hidden></div><div class="scene" id="home"></div><div class="scene" id="play" hidden></div><div class="toast" id="toast"></div></div>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
@@ -5163,12 +5177,12 @@ function flyNew(ev0,it0){const items=(G.items||[]).slice(it0).map(it=>({t:TOOLS[
 const CQ3=[];let CQ3on=false;
 function clue3(list){list.forEach(e=>CQ3.push(e));if(!CQ3on)clueNext3()}
 function clueNext3(){const e=CQ3.shift();if(!e||!G){CQ3on=false;return}CQ3on=true;const g=G;const contra=/^contra_/.test(e.id);let name='A note';try{name=evName(e)}catch(_){}const txt=String(e.t||'').replace(/<[^>]+>/g,'');
-  $('#clue3')?.remove();$('#play').insertAdjacentHTML('beforeend',`<div class="clue3 ${contra?'contra':''}" id="clue3" role="status" aria-live="polite"><div class="stamp"><span>${contra?'CONTRADICTION':'NEW CLUE'}</span></div><div class="card"><div class="ic">${ITEMS.svg('magnifier',56)}</div><b>${name.toUpperCase()}</b><p>${txt.length>130?txt.slice(0,127)+'…':txt}</p><small>PINNED TO YOUR BOARD</small></div></div>`);
+  $('#clue3')?.remove();$('#play').insertAdjacentHTML('beforeend',`<div class="clue3 ${contra?'contra':''}" id="clue3" role="status" aria-live="polite"><div class="stamp"><span>${contra?'CONTRADICTION':'NEW CLUE'}</span></div><div class="card"><div class="ic">${ITEMS.svg('magnifier',56)}</div><b>${name.toUpperCase()}</b><p>${txt.length>130?txt.slice(0,127)+'…':txt}</p><small>PINNED TO YOUR BOARD · TAP TO CONTINUE</small></div></div>`);
   try{SND.clue(contra)}catch(_){}if(window.LOG3)LOG3.ev('clue',{id:e.id});
   const el=$('#clue3');let gone=false;const go=()=>{if(gone)return;gone=true;const tgt=$('#dbrd3'),cd=el.querySelector('.card');
     if(tgt&&cd){const a=cd.getBoundingClientRect(),b=tgt.getBoundingClientRect();cd.style.transition='transform .45s cubic-bezier(.5,0,.8,.6)';cd.style.transform=`translate(${b.left+b.width/2-a.left-a.width/2}px,${b.top+b.height/2-a.top-a.height/2}px) scale(.12) rotate(-8deg)`}
     el.classList.add('out');setTimeout(()=>{el.remove();if(G===g){G._newC=(G._newC||0)+1;newBadge3();const t=$('#dbrd3');if(t){t.classList.remove('pulse3');void t.offsetWidth;t.classList.add('pulse3')}try{SND.pin()}catch(_){}}clueNext3()},470)};
-  el.addEventListener('click',go);setTimeout(go,window.__noAuto?1e9:2600)}
+  el.addEventListener('click',go)}
 function newBadge3(){const t=$('#dbrd3');if(!t||!G)return;let b=t.querySelector('.new3');const n=G._newC||0;if(!n){b&&b.remove();return}if(!b){b=document.createElement('i');b.className='new3';t.appendChild(b)}b.textContent='+'+n}
 /* ---------- the screen ---------- */
 function meHTML(){const lit=Math.ceil(G.nerve/2);let n='';for(let i=0;i<5;i++)n+=`<i class="${i<lit?'on':''}"></i>`;let h='';for(let i=0;i<G.hpMax;i++)h+=`<i class="${i<G.hp?'on':''}"></i>`;
@@ -5671,7 +5685,7 @@ const ending30=ending;ending=function(...a){if(G&&['wrong','weak','dead'].includ
 /* the score follows the night even between taps */
 setInterval(()=>{try{if(BGM.ctx)BGM.set(bgmMode())}catch(_){}},1200);
 
-window.BUILD3='2026-10-29 19:12';
+window.BUILD3='2026-10-30 02:47';
 /* ---------- problem log: what really happened on the player's phone ---------- */
 const LOG3=(()=>{const KEY='bw_log3',sid=Date.now().toString(36)+Math.random().toString(36).slice(2,6);let buf=[],dirty=false,sent=0,saveT=0;
   try{buf=JSON.parse(localStorage.getItem(KEY)||'[]')||[]}catch(_){buf=[]}
@@ -5745,6 +5759,16 @@ const doAct3w=doAct;doAct=function(fn,o){if(!G)return doAct3w(fn,o);const g=G;le
     went.forEach(s=>{if(P3.talk===s.id)return;say(G,LEAVE3[Math.floor(hash3(s.id+G.time)*LEAVE3.length)].replace('{n}',short(s.n)),'dim')});
     if(came.length)setTimeout(()=>steps3(came.length,false),250);else if(went.length)setTimeout(()=>steps3(went.length,true),250);
     if(came.length||went.length)LOG3.ev('guests',{came:came.map(s=>s.id).join(','),went:went.map(s=>s.id).join(',')})},o)};
+
+/* dawn: before you name them, you can still look at the board, the notebook and the satchel; closing any of them brings you back */
+const accuseSheet3f=accuseSheet;accuseSheet=function(forced,...a){if(G)G._accBack=false;const r=accuseSheet3f(forced,...a);const acc=$('#scr3 .acc3');if(!acc||!G)return r;
+  const sel=G._accSel||(G._accSel={});
+  acc.querySelectorAll('[data-s]').forEach(b=>b.addEventListener('click',()=>{sel.s=b.dataset.s}));acc.querySelectorAll('[data-w]').forEach(b=>b.addEventListener('click',()=>{sel.w=b.dataset.w}));
+  if(sel.s)acc.querySelector(`[data-s="${sel.s}"]`)?.click();if(sel.w)acc.querySelector(`[data-w="${sel.w}"]`)?.click();
+  const sub=acc.querySelector('.sub');sub&&sub.insertAdjacentHTML('afterend',`<div class="peek3"><button type="button" data-p="board">${DOCK.brd}<span>BOARD</span></button><button type="button" data-p="journal">${DOCK.nb}<span>NOTEBOOK</span></button><button type="button" data-p="satchel">${DOCK.sat}<span>SATCHEL</span></button></div>`);
+  acc.querySelectorAll('[data-p]').forEach(b=>b.onclick=()=>{const f=b.dataset.p,fr=!!forced;G._accBack=fr?'forced':'open';if(f==='board')board();else if(f==='journal')journal();else satchel();G._accBack=fr?'forced':'open'});
+  return r};
+document.addEventListener('click',e=>{if(!G||!G._accBack||G.over)return;const t=e.target.closest&&e.target.closest('#scr3 .close3,#scrimh3');if(!t||$('#scr3 .acc3'))return;const f=G._accBack==='forced';setTimeout(()=>{if(G&&!G.over&&!$('#scr3 .acc3'))accuseSheet(f)},30)});
 
 window.addEventListener('resize',()=>{if(G&&!$('#play').hidden)setupCanvas()});
 renderTitle();

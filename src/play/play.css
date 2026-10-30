@@ -447,3 +447,17 @@
 @media (prefers-reduced-motion:reduce){.clue3,.clue3 *{animation:none!important}}
 .logbtn3[hidden]{display:none}
 #ntx3 p.arrive{color:#ffc83d;font-weight:600}
+
+/* room signs: small, see-through tabs at the edges so the room stays visible */
+.ne3 em{width:26px;height:46px;background:#e3243bd0}
+.ne3 em svg{width:13px;height:19px}
+.ne3 span{background:#0c0c0f8c;padding:3px 8px 2px;border-width:1px;border-color:#ffffff55}
+.nav3 .ne3 b{font-size:15px}
+.nav3 .ne3 i,.nav3 .nb3 i{display:none}
+.nb3{background:#0c0c0f8c!important;border:1px solid #ffffff55!important;padding:2px 10px 1px!important;gap:5px}
+.nb3 b{font-size:14px}.nb3 svg{width:12px;height:9px}
+.nav3 button{opacity:.9}
+/* dawn: look before you name them */
+.peek3{display:flex;gap:8px}
+.peek3 button{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;background:#0c0c0f;border:2px solid var(--gold);color:var(--wh);padding:8px 4px 6px;font:400 16px var(--bb);letter-spacing:.06em;cursor:pointer}
+.peek3 svg{width:16px;height:16px;color:var(--gold)}

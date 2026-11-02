@@ -549,7 +549,9 @@ function audioInit(){
   const len=ctx.sampleRate*2,buf=ctx.createBuffer(1,len,ctx.sampleRate),d=buf.getChannelData(0);for(let i=0;i<len;i++)d[i]=R()*2-1;A.nb=buf;
   const loop=(type,f,q,vol)=>{const s=ctx.createBufferSource();s.buffer=buf;s.loop=true;const fl=ctx.createBiquadFilter();fl.type=type;fl.frequency.value=f;fl.Q.value=q;const g=ctx.createGain();g.gain.value=vol;s.connect(fl);fl.connect(g);g.connect(A.master);s.start();return {g,fl}};
   A.rain=loop('highpass',1800,.5,.06);A.wind=loop('lowpass',300,.7,.12);
-  A.scrape=loop('bandpass',2300,14,0);              // his hook dragging on gravel and steel
+  A.hp=ctx.createPanner();A.hp.panningModel='HRTF';A.hp.distanceModel='inverse';A.hp.refDistance=2;A.hp.rolloffFactor=1.25;A.hp.maxDistance=60;A.hp.connect(A.master);
+  A.scrape=loop('bandpass',2300,14,0);A.scrape.g.disconnect();A.scrape.g.connect(A.hp);              // his hook dragging on gravel and steel
+  const bz=ctx.createOscillator();bz.type='square';bz.frequency.value=120;const bf=ctx.createBiquadFilter();bf.type='lowpass';bf.frequency.value=1100;A.buzz=ctx.createGain();A.buzz.gain.value=.025;bz.connect(bf);bf.connect(A.buzz);A.buzz.connect(A.hp);bz.start();
   const hum=ctx.createOscillator();hum.type='sawtooth';hum.frequency.value=50;const hf=ctx.createBiquadFilter();hf.type='lowpass';hf.frequency.value=180;A.humG=ctx.createGain();A.humG.gain.value=.012;hum.connect(hf);hf.connect(A.humG);A.humG.connect(A.master);hum.start();
   // chase drone: two detuned saws through a slow filter, silent until he sees you
   A.chaseG=ctx.createGain();A.chaseG.gain.value=0;const cf=ctx.createBiquadFilter();cf.type='lowpass';cf.frequency.value=420;cf.Q.value=4;cf.connect(A.chaseG);A.chaseG.connect(A.master);
@@ -573,6 +575,64 @@ const snd={
   siren(){for(let k=0;k<4;k++){tone(600,900,.5,'square',.05,0,k*1);tone(900,600,.5,'square',.05,0,k*1+.5)}},
   caught(){burst(.6,'bandpass',2600,10,.6,0,.002);tone(90,40,.8,'sawtooth',.3,0);burst(1.2,'lowpass',200,1,.5,0,.01)}
 };
+/* ---------- sound design: the player's body, and him, placed in 3D ---------- */
+// small building blocks that play into any destination node
+function nz(dest,dur,type,freq,q,vol,delay=0,attack=.003,rate=1){if(!A.on)return;const c=A.ctx,t=c.currentTime+delay,s=c.createBufferSource();s.buffer=A.nb;s.playbackRate.value=rate;const f=c.createBiquadFilter();f.type=type;f.frequency.value=freq;f.Q.value=q;const e=c.createGain();e.gain.setValueAtTime(0,t);e.gain.linearRampToValueAtTime(vol,t+attack);e.gain.exponentialRampToValueAtTime(.0001,t+dur);s.connect(f);f.connect(e);e.connect(dest);s.start(t,R()*1.5);s.stop(t+dur+.05)}
+function os(dest,f0,f1,dur,type,vol,delay=0,attack=.006){if(!A.on)return;const c=A.ctx,t=c.currentTime+delay,o=c.createOscillator();o.type=type;o.frequency.setValueAtTime(f0,t);o.frequency.exponentialRampToValueAtTime(Math.max(1,f1),t+dur);const e=c.createGain();e.gain.setValueAtTime(0,t);e.gain.linearRampToValueAtTime(vol,t+attack);e.gain.exponentialRampToValueAtTime(.0001,t+dur);o.connect(e);e.connect(dest);o.start(t);o.stop(t+dur+.05)}
+// a voice-like tone: buzzy source, distorted, through two vowel formants
+function voice(dest,f0,f1,dur,vol,form=[700,1150],delay=0,attack=.08,drive=6){if(!A.on)return;const c=A.ctx,t=c.currentTime+delay,o=c.createOscillator();o.type='sawtooth';o.frequency.setValueAtTime(f0,t);o.frequency.exponentialRampToValueAtTime(Math.max(1,f1),t+dur);
+  const ws=c.createWaveShaper(),n=256,cu=new Float32Array(n);for(let i=0;i<n;i++){const x=i/n*2-1;cu[i]=Math.tanh(x*drive)}ws.curve=cu;const mix=c.createGain();
+  form.forEach((f,k)=>{const b=c.createBiquadFilter();b.type='bandpass';b.frequency.value=f;b.Q.value=5;const g=c.createGain();g.gain.value=k?.6:1;ws.connect(b);b.connect(g);g.connect(mix)});
+  const e=c.createGain();e.gain.setValueAtTime(0,t);e.gain.linearRampToValueAtTime(vol,t+attack);e.gain.setValueAtTime(vol,t+dur*.7);e.gain.exponentialRampToValueAtTime(.0001,t+dur);o.connect(ws);mix.connect(e);e.connect(dest);o.start(t);o.stop(t+dur+.05)}
+// a sound placed in the world, so you hear where it is and how far
+function at(x,y,z,ref=2){const p=A.ctx.createPanner();p.panningModel='HRTF';p.distanceModel='inverse';p.refDistance=ref;p.rolloffFactor=1.25;p.maxDistance=60;
+  if(p.positionX){p.positionX.value=x;p.positionY.value=y;p.positionZ.value=z}else p.setPosition(x,y,z);p.connect(A.master);return p}
+function me(pan=0,vol=1){return out(pan,vol)}
+const _f=new T.Vector3(),_u=new T.Vector3();
+function listen(){if(!A.on)return;const l=A.ctx.listener;cam.getWorldDirection(_f);_u.set(0,1,0).applyQuaternion(cam.quaternion);const p=cam.position;
+  if(l.positionX){l.positionX.value=p.x;l.positionY.value=p.y;l.positionZ.value=p.z;l.forwardX.value=_f.x;l.forwardY.value=_f.y;l.forwardZ.value=_f.z;l.upX.value=_u.x;l.upY.value=_u.y;l.upZ.value=_u.z}
+  else{l.setPosition(p.x,p.y,p.z);l.setOrientation(_f.x,_f.y,_f.z,_u.x,_u.y,_u.z)}
+  if(A.hp&&L.hu){const h=L.hu;if(A.hp.positionX){A.hp.positionX.value=h.x;A.hp.positionY.value=2.1;A.hp.positionZ.value=h.z}else A.hp.setPosition(h.x,2.1,h.z)}}
+const sfx={
+  // your boots on wet gravel: a dull heel thud and a scatter of grit
+  pstep(run,side){const d=me(side*.12,1),k=run?1.35:1;os(d,150,80,.09,'triangle',.16*k);nz(d,.07,'lowpass',520,.8,.14*k);
+    for(let i=0;i<4;i++)nz(d,.03+R()*.04,'bandpass',1500+R()*2200,1.3,.11*k,i*.012+R()*.02)},
+  // one breath: air drawn in through the teeth, then let out; voiced when you're spent
+  breath(str,voiced,shaky){const d=me(0,1);nz(d,.34,'bandpass',1150,.7,.07*str,0,.22);nz(d,.3,'highpass',2600,.6,.025*str,.02,.2);
+    if(shaky){for(let i=0;i<3;i++)nz(d,.12,'bandpass',700,1,.06*str,.4+i*.12,.03)}else nz(d,.42,'bandpass',720,.9,.1*str,.38,.03);
+    if(voiced)voice(d,190,150,.32,.035*str,[650,1100],.4,.04,3)},
+  // a heartbeat a phone speaker can reproduce: low thump plus a tight upper knock
+  beat(v){const d=me(0,1);for(const [dl,s] of[[0,1],[.2,.7]]){os(d,95,52,.15,'sine',v*s,dl,.004);os(d,190,105,.07,'triangle',v*.55*s,dl,.003);nz(d,.06,'lowpass',320,.7,v*.5*s,dl,.002)}},
+  // his boots, heavy and uneven, the chain jangling after each one
+  hstep(x,z,v){const d=at(x,.2,z,2.5);os(d,120,58,.16,'sine',.55*v,0,.004);nz(d,.13,'lowpass',520,.8,.4*v);for(let i=0;i<3;i++)nz(d,.05,'bandpass',1800+R()*1800,1.2,.14*v,i*.015);
+    const ch=at(x,.5,z,2.5);for(let i=0;i<2+(R()*3|0);i++)nz(ch,.14+R()*.1,'bandpass',2600+R()*3200,22,.5*v,.04+i*.06+R()*.04,.002)},
+  // breathing inside the bucket: wet, slow, ringing in the metal
+  hbreath(x,z,chase){if(!A.on)return;const c=A.ctx,d=at(x,2.1,z,2),dl=c.createDelay(.05),fb=c.createGain(),wet=c.createGain();dl.delayTime.value=.0062;fb.gain.value=.62;wet.gain.value=.8;dl.connect(fb);fb.connect(dl);dl.connect(wet);wet.connect(d);
+    const into=c.createGain();into.connect(d);into.connect(dl);const s=chase?1.35:1;
+    nz(into,chase?.5:.9,'bandpass',430,3,.22*s,0,chase?.25:.55);
+    voice(into,chase?92:72,chase?80:60,chase?.6:1.1,.12*s,[380,900],chase?.55:1,.15,9);nz(into,chase?.6:1,'bandpass',360,2,.16*s,chase?.55:1,.1)},
+  // when he spots you: a distorted bellow through the bucket and a shriek of metal
+  roar(x,z){const d=at(x,2.1,z,3);voice(d,130,72,1.4,.5,[620,1050],0,.06,14);voice(d,197,110,1.2,.18,[900,1500],.05,.05,10);
+    nz(d,1,'bandpass',2100,14,.25,0,.03,.9);os(d,1900,1250,.9,'sawtooth',.03,.05);snd.sting()},
+  hit(){const d=me(0,1);nz(d,.25,'lowpass',900,.7,.9,0,.001);os(d,110,40,.4,'sine',.9,0,.002);nz(d,.5,'bandpass',2600,8,.35,0,.001);
+    // ringing in your ears
+    os(d,3800,3700,3.2,'sine',.05,.1,.05)},
+  clatter(){const d=me(.3,1);for(let i=0;i<5;i++){nz(d,.09,'bandpass',2200+R()*2500,9,.3/(i+1),i*.11+R()*.05,.001)}nz(d,.9,'bandpass',1400,3,.05,.5,.2)},
+  drag(dur){const d=me(0,1);nz(d,dur,'bandpass',900,1.2,.2,0,.2,.6);for(let i=0;i<dur*9;i++)nz(d,.05,'bandpass',1800+R()*2000,1.5,.12,i/9+R()*.05)}
+};
+// rhythm of your own body, driven every frame
+const body={nextBreath:0,nextBeat:0,nextH:0,side:1};
+function audioTick(t,fear){if(!A.on||mode!=='play'||L.over||paused)return;const p=L.pl,h=L.hu;listen();
+  // breathing: fast and ragged when running, voiced gasps when spent, shaky when he's close, quiet otherwise
+  let iv=3.4,str=.3,voiced=false,shaky=false;
+  if(p.hidden){iv=fear>.3?1.6:2.6;str=fear>.3?.45:.25;shaky=fear>.3}
+  else if(p.tired){iv=.48;str=1.15;voiced=true}else if(p.sprint){iv=.56;str=.85}else if(fear>.45){iv=1.05;str=.6;shaky=true}else if(p.speed>.6){iv=2.4;str=.35}
+  if(t>body.nextBreath){sfx.breath(str,voiced,shaky);body.nextBreath=t+iv*(.9+R()*.2)}
+  // heartbeat: rises with fear and exertion
+  const exert=(100-p.stam)/100,drive=Math.max(fear,exert*.6,p.tired?.7:0);
+  if(drive>.12&&t>body.nextBeat){sfx.beat(.12+drive*.5);body.nextBeat=t+60/(72+drive*100)}
+  // him: breathing in the bucket, louder when hunting
+  if(t>body.nextH){sfx.hbreath(h.x,h.z,h.state==='chase');body.nextH=t+(h.state==='chase'?1.25:2.6+R()*.8)}}
 function dog(){if(!A.on)return;if(L.P){const pan=(R()-.5)*1.6;for(let k=0;k<2+(R()*3|0);k++){tone(480,300,.12,'sawtooth',.018,pan,k*.32);burst(.1,'bandpass',900,3,.02,pan,.005)}}setTimeout(dog,9000+R()*16000)}
 
 /* ---------- UI helpers ---------- */
@@ -634,7 +694,7 @@ function updatePlayer(dt,t){
   const as=Math.hypot(p.vx,p.vz);p.speed=as;p.strafe=lerp(p.strafe||0,mx*clamp(as/3,0,1),Math.min(1,dt*6));
   p.phase+=dt*as*(p.sprint?2.6:2.9);
   torchL.visible=torchBeam.visible=p.light;torchLens.material.color.set(p.light?'#fff6e0':'#2a2824');torchL.intensity=3.2+Math.sin(t*31)*.08;
-  if(as>.6){const k=Math.floor(p.phase/Math.PI);if(k!==p.lastStep){p.lastStep=k;snd.step(p.sprint);if(p.sprint)makeNoise(p.x,p.z,15)}}
+  if(as>.6){const k=Math.floor(p.phase/Math.PI);if(k!==p.lastStep){p.lastStep=k;body.side=-body.side;sfx.pstep(p.sprint,body.side);if(p.sprint)makeNoise(p.x,p.z,15)}}
 }
 function makeNoise(x,z,r){const h=L.hu;if(h.state==='chase')return;if(Math.hypot(h.x-x,h.z-z)<r){h.state='investigate';h.tx=x;h.tz=z;h.path=null;h.repath=0;if(r>14)alert2('He heard that',true)}}
 
@@ -676,7 +736,7 @@ function updateHunter(dt,t){
   const h=L.hu,p=L.pl,H=L.H;h.look=h.look||0;
   const grace=t-L.t0<10;
   const d=Math.hypot(p.x-h.x,p.z-h.z);
-  if(!grace&&!p.hidden&&sees(p.x,p.z)){if(h.state!=='chase'){snd.sting();alert2('He sees you');L.seenCount++}h.state='chase';h.seenT=t;h.lastSeenX=p.x;h.lastSeenZ=p.z}
+  if(!grace&&!p.hidden&&sees(p.x,p.z)){if(h.state!=='chase'){sfx.roar(h.x,h.z);alert2('He sees you');L.seenCount++}h.state='chase';h.seenT=t;h.lastSeenX=p.x;h.lastSeenZ=p.z}
   // speeds and targets
   let spd=1.7;
   if(h.state==='chase'){spd=4.35+L.fusesDone*.22;const vis=t-h.seenT<.25;h.tx=vis?p.x:h.lastSeenX;h.tz=vis?p.z:h.lastSeenZ;
@@ -718,10 +778,53 @@ function updateHunter(dt,t){
     pf.s.position.applyAxisAngle(new T.Vector3(0,1,0),-H.g.rotation.y);pf.s.scale.setScalar(.12+u*.45);pf.s.material.opacity=(1-u)*.22});
   H.g.position.set(h.x,0,h.z);H.g.rotation.y=h.yaw;
   H.lamp.intensity=6.5+Math.sin(t*23)*.2+(R()<.01?-4:0);
-  if(as>.5){const k=Math.floor(h.phase/Math.PI);if(k!==h.lastStep){h.lastStep=k;const pan=Math.sin(angW(Math.atan2(-(h.x-p.x),-(h.z-p.z))-p.yaw)),v=clamp(.32-d/60,0,.3);snd.heavy(-pan,v)}}
-  if(A.on){A.scrape.g.gain.setTargetAtTime(as>.4?clamp(.09-d/260,0,.08):0,A.ctx.currentTime,.2);A.chaseG.gain.setTargetAtTime(h.state==='chase'?.05:0,A.ctx.currentTime,h.state==='chase'?.3:1.5)}
+  if(as>.5){const k=Math.floor(h.phase/Math.PI);if(k!==h.lastStep){h.lastStep=k;sfx.hstep(h.x,h.z,h.state==='chase'?1.2:1)}}
+  if(A.on){A.scrape.g.gain.setTargetAtTime(as>.4?.16:0,A.ctx.currentTime,.2);A.chaseG.gain.setTargetAtTime(h.state==='chase'?.05:0,A.ctx.currentTime,h.state==='chase'?.3:1.5)}
   return d}
-function caught(){if(L.over)return;L.over=true;L.endKind='lose';L.endT=now();snd.caught();$('hideV').hidden=true}
+function caught(){if(L.over)return;const p=L.pl,h=L.hu;L.over=true;L.endKind='lose';L.endT=now();$('hideV').hidden=true;
+  if(p.hidden){p.x=h.x+(p.hideX-h.x)*.6;p.z=h.z+(p.hideZ-h.z)*.6;p.hidden=null}
+  let ux=h.x-p.x,uz=h.z-p.z;const ul=Math.hypot(ux,uz)||1;ux/=ul;uz/=ul;
+  // drag toward whichever side has room
+  const dragDir=clear(p.x,p.z,p.x+ux*3,p.z+uz*3)?1:clear(p.x,p.z,p.x-ux*3,p.z-uz*3)?-1:0;
+  const dropped=new T.SpotLight('#fff1d6',0,9,.55,.5,1.2);dropped.position.set(p.x-uz*.35-ux*.3,.12,p.z+ux*.35-uz*.3);dropped.target.position.set(h.x,1.4,h.z);world.add(dropped,dropped.target);
+  L.kill={x0:p.x,z0:p.z,ux,uz,hx0:h.x,hz0:h.z,dragDir,sfx:{},dropped};
+  ['top','stick','btns','lzone'].forEach(id=>$(id).hidden=true);if(document.pointerLockElement)document.exitPointerLock();
+  if(A.on){A.chaseG.gain.setTargetAtTime(.09,A.ctx.currentTime,.05);A.scrape.g.gain.setTargetAtTime(0,A.ctx.currentTime,.1)}
+  sfx.roar(h.x,h.z)}
+/* the death: he rears up, the hook comes down, you hit the ground, he bends over you, then drags you away into the dark */
+function killScene(t){const K=L.kill,te=t-L.endT,H=L.H,h=L.hu;
+  const sx=K.x0+K.ux*.95,sz=K.z0+K.uz*.95;              // where he stands to strike
+  const fx=K.x0-K.ux*.5,fz=K.z0-K.uz*.5;                // where you land
+  let hx,hz,arm=0,lean=-.5,headX=0,armL=.3;
+  if(te<.7){const a=ease(clamp(te/.35,0,1));hx=lerp(K.hx0,sx,a);hz=lerp(K.hz0,sz,a);arm=te<.5?lerp(.3,2.8,ease(clamp(te/.45,0,1))):lerp(2.8,.5,ease(clamp((te-.5)/.2,0,1)));lean=te<.5?-.2:-.7}
+  else if(te<1.6){hx=sx;hz=sz;arm=.5;lean=lerp(-.7,-.5,clamp((te-.7)/.5,0,1))}
+  else{const a=ease(clamp((te-1.6)/.9,0,1));const ox=fx+K.ux*.75,oz=fz+K.uz*.75;hx=lerp(sx,ox,a);hz=lerp(sz,oz,a);lean=lerp(-.5,-1.0,a);headX=lerp(0,.6,a);armL=lerp(.3,1.25,a);arm=.4}
+  // dragging: he backs away pulling you by the ankle
+  const dt0=clamp((te-3.2)/1.7,0,1),dd=K.dragDir*ease(dt0)*2.2;hx+=K.ux*dd;hz+=K.uz*dd;
+  h.x=hx;h.z=hz;H.g.position.set(hx,0,hz);H.g.rotation.y=Math.atan2(-(K.x0-hx),-(K.z0-hz));
+  H.pelvis.rotation.x=lean*.3;H.spine.rotation.x=lean*.7;H.armR.rotation.x=arm;H.armR.rotation.z=.25;H.armL.rotation.x=armL;H.head.rotation.x=headX-(lean)*.2;H.head.rotation.z=.25+Math.sin(te*9)*.05*(te<1.6?1:.3);
+  const wk=te>3.2&&te<4.9?Math.sin(te*7):0;H.hipL.rotation.x=wk*.35;H.hipR.rotation.x=-wk*.35;
+  H.lamp.intensity=te>1.6&&te<3.2?9:7;
+  // your torch: in your hand until the hit, then lying on the gravel lighting him from below
+  torchL.visible=te<.62&&L.pl.light;K.dropped.intensity=te<.75?0:lerp(0,3.2,clamp((te-.75)/.2,0,1))*(1+Math.sin(te*37)*.04);K.dropped.target.position.set(hx,1.5,hz);
+  // sound beats of the sequence, each fired once
+  const once=(k,at2,fn)=>{if(te>=at2&&!K.sfx[k]){K.sfx[k]=1;fn()}};
+  once('hit',.62,()=>{sfx.hit()});once('torch',.95,()=>sfx.clatter());
+  [1.7,2.45,3.3,4.25,5.3].forEach((b,i)=>once('b'+i,b,()=>sfx.beat(.55-i*.07)));
+  once('breathe',1.9,()=>sfx.hbreath(hx,hz,false));once('breathe2',3.0,()=>sfx.hbreath(hx,hz,true));
+  once('drag',3.2,()=>{if(K.dragDir)sfx.drag(1.8)});
+  // the picture: red flash on the hit, then the edges close in to black
+  const g=grade.uniforms;if(te<.62){g.flash.value=0}else if(te<1.4){g.fc.value.set(.45,0,0);g.flash.value=lerp(.75,.22,ease((te-.62)/.78))}
+  else if(te<4){g.fc.value.set(.3,0,0);g.flash.value=.22+Math.sin(te*5)*.03}else{g.fc.value.set(0,0,0);g.flash.value=lerp(.25,1,ease(clamp((te-4)/1.2,0,1)))}
+  if(te>5.5&&$('end').hidden)showEnd()}
+function killCam(t,dt){const K=L.kill,te=t-L.endT,H=L.H,hp=new T.Vector3();H.head.getWorldPosition(hp);
+  const fall=ease(clamp((te-.62)/.55,0,1)),bounce=te>1.17&&te<1.5?Math.sin((te-1.17)/.33*Math.PI)*.06:0;
+  const dd=K.dragDir*ease(clamp((te-3.2)/1.7,0,1))*2.2;
+  const x=lerp(K.x0,K.x0-K.ux*.5,fall)+K.ux*dd,z=lerp(K.z0,K.z0-K.uz*.5,fall)+K.uz*dd;
+  const shake=RM||!SET.shake?0:(te<.62?.05:te<1.2?.12*(1-fall*.6):te>3.2&&te<4.9?.03:.008);
+  cam.position.set(x+(R()-.5)*shake,lerp(1.6,.2,fall)+bounce+(R()-.5)*shake,z+(R()-.5)*shake);
+  if(!L._cl){L._cl=1;camL.copy(cam.position).add(cam.getWorldDirection(new T.Vector3()).multiplyScalar(3))}
+  camL.lerp(hp,Math.min(1,dt*(te<.62?10:4)));cam.lookAt(camL);cam.rotateZ(lerp(0,1.2,fall)-(te>1.6?Math.sin(te*.8)*.05:0));torchRig.visible=false}
 function escaped(){if(L.over)return;L.over=true;L.endKind='win';L.endT=now()}
 function showEnd(){const w=L.endKind==='win',s=Math.round(L.endT-L.t0);
   $('endH').textContent=w?"You're out":'He found you';$('endH').className=w?'':'dead';
@@ -735,7 +838,7 @@ const camP=new T.Vector3(),camL=new T.Vector3();let camInit=false;
 function updateCamera(dt,t,fear){
   const p=L.pl;
   if(mode==='title'){const a=t*.05,r=26;cam.position.set(G*C/2+Math.cos(a)*r,13,G*C/2+Math.sin(a)*r);cam.lookAt(G*C/2,0,G*C/2);return}
-  if(L.over&&L.endKind==='lose'){const hp=new T.Vector3();L.H.head.getWorldPosition(hp);if(!L._cl){L._cl=1;camL.copy(cam.position).add(cam.getWorldDirection(new T.Vector3()).multiplyScalar(3))}camL.lerp(hp,Math.min(1,dt*7));cam.position.set(p.x,1.5,p.z);cam.lookAt(camL);torchRig.visible=false;return}
+  if(L.over&&L.endKind==='lose'){killCam(t,dt);return}
   if(p.hidden){const lx=p.hideX-Math.sin(p.hideLook)*6,lz=p.hideZ-Math.cos(p.hideLook)*6;cam.position.set(p.hideX-Math.sin(p.hideLook)*1.2,1.05,p.hideZ-Math.cos(p.hideLook)*1.2);camL.set(lx,1.2,lz);cam.lookAt(camL);camInit=false;return}
   L.camYaw=p.yaw;
   const mot=RM||!SET.bob,k=clamp(p.speed/3,0,1.4),bob=mot?0:Math.sin(p.phase*2)*.032*k,sway=mot?0:Math.sin(p.phase)*.022*k;
@@ -757,14 +860,14 @@ function frame(){
   if(mode==='play'&&!L.over&&!paused){
     updatePlayer(dt,t);updateAction(dt,t);const d=updateHunter(dt,t)??30;
     fear=clamp((18-d)/14,0,1)*(L.hu.state==='chase'?1:.6);
-    if(fear>.15&&t>nextBeat){snd.beat(.08+fear*.25);nextBeat=t+1.1-fear*.6}
+    audioTick(t,fear);
     const pr=L.pl;$('stI').style.transform=`scaleX(${pr.stam/100})`;$('stB').classList.toggle('low',pr.tired);
     // gate slides open; walking out past the fence wins
     if(L.gateOpen>0&&L.gateOpen<1){L.gateOpen=Math.min(1,L.gateOpen+dt/3.2);L.gate.position.x=L.gi*C+C/2+L.gateOpen*(C-.2);if(L.gateOpen>=1){say('Go. Now.',1800);setObj()}}
     if(pr.z<C-1.4&&L.gateOpen>=1)escaped();
   }
-  if(L.over){const k=clamp((t-L.endT)/(L.endKind==='lose'?1.1:1.6),0,1);grade.uniforms.flash.value=L.endKind==='lose'?(k<.3?k/.3*.9:.9):k*.9;grade.uniforms.fc.value.set(L.endKind==='lose'?.85:.02,L.endKind==='lose'?.88:.02,L.endKind==='lose'?.95:.03);
-    if(L.endKind==='lose'&&k>.3)grade.uniforms.fc.value.set(.02,.0,.0);if(k>=1&&$('end').hidden)showEnd()}
+  if(L.over&&L.endKind==='lose'){killScene(t);fear=clamp(1-(t-L.endT-1.6)/3,.35,1);listen()}
+  else if(L.over){const k=clamp((t-L.endT)/1.6,0,1);grade.uniforms.flash.value=k*.9;grade.uniforms.fc.value.set(.02,.02,.03);if(k>=1&&$('end').hidden)showEnd()}
   // floodlights: on timers, clunk off and on
   L.floods.forEach(f=>{f.timer-=dt;if(f.timer<=0&&f.timer>-1000){f.on=!f.on;f.timer=f.on?14+R()*20:6+R()*6;if(mode==='play')snd.flood(f.on,0)}
     const fl=f.on?1:0;f.sp.intensity=fl*(7+Math.sin(t*50+f.x)*.25);f.beam.visible=!!fl;f.lens.material.color.set(fl?'#ffd9a0':'#2a2620')});
@@ -794,8 +897,9 @@ showSet();
 function start(){audioInit();if(A.ctx&&A.ctx.state==='suspended')A.ctx.resume();
   if(mode!=='title')build();
   $('title').hidden=true;$('end').hidden=true;['top','stick','btns','lzone'].forEach(id=>$(id).hidden=false);$('hideV').hidden=true;$('bLight').classList.remove('off');
-  grade.uniforms.flash.value=0;mode='play';L.t0=now();camInit=false;L.camYaw=L.pl.yaw;L._cl=0;setObj();
+  grade.uniforms.flash.value=0;grade.uniforms.fc.value.set(0,0,0);mode='play';L.t0=now();camInit=false;L.camYaw=L.pl.yaw;L._cl=0;setObj();
   setTimeout(()=>say('The gate is chained shut behind you. Find the junction boxes. Look for the green lights.',4200),500);setTimeout(()=>say('Left thumb moves. Push it all the way to run. Right thumb looks.',3400),5000)}
+addEventListener('pointerdown',()=>{if(L.over&&L.endKind==='lose'&&now()-L.endT>1.2&&$('end').hidden)showEnd()});
 $('bStart').addEventListener('click',start);$('bAgain').addEventListener('click',start);
 ['top','stick','btns','lzone'].forEach(id=>$(id).hidden=true);
 

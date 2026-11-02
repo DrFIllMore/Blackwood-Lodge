@@ -1,6 +1,6 @@
 # Breaker's Yard
 
-A night-time chase in a scrapyard, played in the browser on a phone or a computer.
+A first-person night-time chase in a scrapyard, played in the browser on a phone or a computer.
 
 You came over the fence for parts. At midnight the gate locked itself, and the man who runs the yard is still here. Pull three fuses from the junction boxes, wire them into the gate panel, and get out before he finds you.
 
@@ -10,7 +10,8 @@ You came over the fence for parts. At midnight the gate locked itself, and the m
 
 | | Phone | Keyboard |
 |---|---|---|
-| Walk / turn | Left stick (up to walk, sideways to turn) | W A S D or arrow keys |
+| Walk / sidestep | Left stick | W A S D |
+| Look around | Drag on the right side of the screen | Mouse (click the game first); arrow keys turn |
 | Sprint | Hold RUN | Shift |
 | Pull fuse, hide, wire the gate | Yellow action button | E |
 | Torch on/off | TORCH | F |

@@ -22,7 +22,7 @@ You came over the fence for parts. At midnight the gate locked itself, and the m
 
 ## Comfort settings
 
-If moving around makes you queasy, open **Comfort settings** (on the title screen, or the sliders button under the breath bar during play). You can switch off head bob, screen shake and sprint zoom. The game pauses while the panel is open, and your choices are remembered on that device.
+If moving around makes you queasy, tap **Comfort** (top right of the title screen, or under the breath bar during play). You can switch off head bob, screen shake and sprint zoom. The game pauses while the panel is open, and your choices are remembered on that device.
 
 ## Files
 

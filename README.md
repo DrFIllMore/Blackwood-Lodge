@@ -20,6 +20,10 @@ You came over the fence for parts. At midnight the gate locked itself, and the m
 - Climb into an open wreck to hide. He won't find you unless he watched you get in.
 - Pulling a fuse makes noise, kills a floodlight and makes him faster.
 
+## Comfort settings
+
+If moving around makes you queasy, open **Comfort settings** (on the title screen, or the sliders button under the breath bar during play). You can switch off head bob, screen shake and sprint zoom. The game pauses while the panel is open, and your choices are remembered on that device.
+
 ## Files
 
 - `index.html` — the whole game in one file. three.js r128 loads from jsDelivr; everything else (models, textures, sound) is generated in code.

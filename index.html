@@ -69,7 +69,26 @@ body{background:var(--ink);color:var(--bone);font-family:var(--font-u);overflow:
 .go{align-self:stretch;height:58px;font:700 17px/1 var(--font-u);letter-spacing:.3em;text-transform:uppercase;color:var(--ink);background:var(--hazard);border:0;cursor:pointer;clip-path:polygon(10px 0,100% 0,calc(100% - 10px) 100%,0 100%)}
 .go:focus-visible{outline:2px solid var(--bone);outline-offset:3px}
 .small{font:600 11px/1.4 var(--font-u);letter-spacing:.2em;color:var(--steel);text-transform:uppercase}
-@media (prefers-reduced-motion:reduce){#msg,#alert{transition:none}}
+#bSet{pointer-events:auto;margin-top:6px;width:40px;height:40px;border-radius:50%;background:var(--glass);border:1px solid var(--line);color:var(--bone);display:flex;align-items:center;justify-content:center;cursor:pointer;-webkit-backdrop-filter:blur(5px);backdrop-filter:blur(5px)}
+#bSet svg{width:20px;height:20px}
+#bSet:focus-visible,.sw:focus-visible,.link:focus-visible{outline:2px solid var(--hazard);outline-offset:2px}
+#sets{position:fixed;inset:0;z-index:20;display:flex;align-items:center;justify-content:center;background:rgba(8,9,10,.78);padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.sheet{width:100%;max-width:420px;background:#121416;border:1px solid var(--line);padding:22px 20px 20px;display:flex;flex-direction:column;gap:16px}
+.sheet h3{margin:0;font:400 30px/1 var(--font-d);color:var(--bone)}
+.sheet p.note{margin:0;font:400 14px/1.45 var(--font-b);color:var(--steel)}
+.opt{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 0;border-top:1px solid var(--line)}
+.opt div{display:flex;flex-direction:column;gap:4px;min-width:0}
+.opt b{font:600 17px/1.2 var(--font-u);letter-spacing:.03em;color:var(--bone)}
+.opt span{font:400 13px/1.35 var(--font-b);color:var(--steel)}
+.sw{flex:none;position:relative;width:56px;height:32px;border-radius:16px;border:1px solid var(--line);background:rgba(228,225,214,.1);cursor:pointer;padding:0}
+.sw::after{content:"";position:absolute;left:3px;top:3px;width:24px;height:24px;border-radius:50%;background:var(--steel);transition:transform .15s,background .15s}
+.sw[aria-checked="true"]{background:rgba(242,194,48,.25);border-color:var(--hazard)}
+.sw[aria-checked="true"]::after{transform:translateX(24px);background:var(--hazard)}
+.sheet .row{display:flex;gap:10px;flex-wrap:wrap}
+.sheet .row button{flex:1;min-width:120px}
+.ghost{height:52px;font:700 14px/1 var(--font-u);letter-spacing:.2em;text-transform:uppercase;color:var(--bone);background:transparent;border:1px solid var(--line);cursor:pointer}
+.link{align-self:flex-start;background:none;border:0;padding:4px 0;font:600 13px/1 var(--font-u);letter-spacing:.2em;text-transform:uppercase;color:var(--bone);text-decoration:underline;text-underline-offset:4px;cursor:pointer}
+@media (prefers-reduced-motion:reduce){#msg,#alert,.sw::after{transition:none}}
 </style>
 
 </head>
@@ -78,7 +97,7 @@ body{background:var(--ink);color:var(--bone);font-family:var(--font-u);overflow:
 
 <div class="hud" id="top">
   <div class="obj"><span class="lbl">Objective</span><b id="objT">Pull the 3 fuses</b><div class="fuses"><i></i><i></i><i></i></div></div>
-  <div class="stam"><span class="lbl">Breath</span><span class="bar" id="stB"><i id="stI"></i></span></div>
+  <div class="stam"><span class="lbl">Breath</span><span class="bar" id="stB"><i id="stI"></i></span><button id="bSet" type="button" aria-label="Comfort settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg></button></div>
 </div>
 <div class="hud" id="alert"></div>
 <div class="hud" id="msg"></div>
@@ -101,8 +120,20 @@ body{background:var(--ink);color:var(--bone);font-family:var(--font-u);overflow:
     <b>FUSES</b><span>Pulling one makes noise. He will come to look.</span>
   </div>
   <button class="go" id="bStart" type="button">Go over the fence</button>
+  <button class="link" id="bSet2" type="button">Comfort settings</button>
   <span class="small">Sound on · Computer: click to look with the mouse, WASD to move, Shift to run, E to act, F for torch</span>
 </section>
+
+<div id="sets" hidden role="dialog" aria-modal="true" aria-labelledby="setsH">
+  <div class="sheet">
+    <h3 id="setsH">Comfort</h3>
+    <p class="note">If moving around makes you feel queasy, switch these off. The game is paused while this is open.</p>
+    <div class="opt"><div><b>Head bob</b><span>Your view bounces and sways with each step, more when you run.</span></div><button class="sw" id="oBob" type="button" role="switch" aria-checked="true" aria-label="Head bob"></button></div>
+    <div class="opt"><div><b>Screen shake</b><span>The view trembles when he's close.</span></div><button class="sw" id="oShake" type="button" role="switch" aria-checked="true" aria-label="Screen shake"></button></div>
+    <div class="opt"><div><b>Sprint zoom</b><span>The view widens while you run.</span></div><button class="sw" id="oZoom" type="button" role="switch" aria-checked="true" aria-label="Sprint zoom"></button></div>
+    <div class="row"><button class="ghost" id="bCalm" type="button">Turn all off</button><button class="go" id="bSetDone" type="button">Done</button></div>
+  </div>
+</div>
 
 <section class="scr" id="end" hidden>
   <div class="tape"></div>
@@ -702,23 +733,23 @@ function updateCamera(dt,t,fear){
   if(L.over&&L.endKind==='lose'){const hp=new T.Vector3();L.H.head.getWorldPosition(hp);if(!L._cl){L._cl=1;camL.copy(cam.position).add(cam.getWorldDirection(new T.Vector3()).multiplyScalar(3))}camL.lerp(hp,Math.min(1,dt*7));cam.position.set(p.x,1.5,p.z);cam.lookAt(camL);torchRig.visible=false;return}
   if(p.hidden){const lx=p.hideX-Math.sin(p.hideLook)*6,lz=p.hideZ-Math.cos(p.hideLook)*6;cam.position.set(p.hideX-Math.sin(p.hideLook)*1.2,1.05,p.hideZ-Math.cos(p.hideLook)*1.2);camL.set(lx,1.2,lz);cam.lookAt(camL);camInit=false;return}
   L.camYaw=p.yaw;
-  const k=clamp(p.speed/3,0,1.4),bob=RM?0:Math.sin(p.phase*2)*.032*k,sway=RM?0:Math.sin(p.phase)*.022*k;
-  const sh=RM?0:fear*.02;
+  const mot=RM||!SET.bob,k=clamp(p.speed/3,0,1.4),bob=mot?0:Math.sin(p.phase*2)*.032*k,sway=mot?0:Math.sin(p.phase)*.022*k;
+  const sh=RM||!SET.shake?0:fear*.02;
   cam.position.set(p.x+Math.cos(p.yaw)*sway+(R()-.5)*sh,1.62+bob+(R()-.5)*sh,p.z-Math.sin(p.yaw)*sway);
-  cam.rotation.set(p.pitch+(RM?0:Math.sin(p.phase*2)*.006*k),p.yaw,-p.strafe*.035+(RM?0:Math.sin(p.phase)*.006*k));
+  cam.rotation.set(p.pitch+(mot?0:Math.sin(p.phase*2)*.006*k),p.yaw,(mot?0:-p.strafe*.035+Math.sin(p.phase)*.006*k));
   // torch sits low and right, swings with your stride and lags a little behind your look
-  torchRig.position.set(.15+Math.sin(p.phase)*.012*k,-.18+Math.abs(Math.cos(p.phase))*.012*k,-.46);
-  const fov=(portrait?76:66)+(p.sprint?8:0);if(Math.abs(cam.fov-fov)>.1){cam.fov=lerp(cam.fov,fov,Math.min(1,dt*4));cam.updateProjectionMatrix()}
+  const tk=mot?0:k;torchRig.position.set(.15+Math.sin(p.phase)*.012*tk,-.18+Math.abs(Math.cos(p.phase))*.012*tk,-.46);
+  const fov=(portrait?76:66)+(p.sprint&&SET.zoom?8:0);if(Math.abs(cam.fov-fov)>.1){cam.fov=lerp(cam.fov,fov,Math.min(1,dt*4));cam.updateProjectionMatrix()}
 }
 
 /* ---------- loop ---------- */
-let mode='title',last=now(),nextBeat=0;const perf={n:0,sum:0};
+let mode='title',last=now(),nextBeat=0,paused=false;const perf={n:0,sum:0};
 function frame(){
   const t=now(),rawDt=t-last,dt=Math.min(.05,rawDt);last=t;let fear=0;
   // every 2 s: if frames are slow, render fewer pixels; if there's headroom, render more
   perf.n++;perf.sum+=rawDt;if(perf.sum>2){const avg=perf.sum/perf.n;perf.n=0;perf.sum=0;
     if(avg>1/42&&PR>.6){PR=Math.max(.6,PR-.15);resize()}else if(avg<1/57&&PR<PR_MAX){PR=Math.min(PR_MAX,PR+.1);resize()}}
-  if(mode==='play'&&!L.over){
+  if(mode==='play'&&!L.over&&!paused){
     updatePlayer(dt,t);updateAction(dt,t);const d=updateHunter(dt,t)??30;
     fear=clamp((18-d)/14,0,1)*(L.hu.state==='chase'?1:.6);
     if(fear>.15&&t>nextBeat){snd.beat(.08+fear*.25);nextBeat=t+1.1-fear*.6}
@@ -740,6 +771,20 @@ function frame(){
   grade.uniforms.time.value=t;grade.uniforms.fear.value=fear;
   comp.render();requestAnimationFrame(frame);
 }
+
+/* ---------- comfort settings (kept on this device) ---------- */
+const SET={bob:true,shake:true,zoom:true};
+try{Object.assign(SET,JSON.parse(localStorage.getItem('by_comfort')||'{}'))}catch(_){}
+const SW={bob:$('oBob'),shake:$('oShake'),zoom:$('oZoom')};
+function showSet(){Object.keys(SW).forEach(k=>SW[k].setAttribute('aria-checked',SET[k]?'true':'false'))}
+function saveSet(){try{localStorage.setItem('by_comfort',JSON.stringify(SET))}catch(_){}showSet()}
+Object.keys(SW).forEach(k=>SW[k].addEventListener('click',()=>{SET[k]=!SET[k];saveSet()}));
+$('bCalm').addEventListener('click',()=>{SET.bob=SET.shake=SET.zoom=false;saveSet()});
+function openSet(){paused=true;showSet();$('sets').hidden=false;if(document.pointerLockElement)document.exitPointerLock();inp.jx=inp.jy=0;inp.runStick=false;$('bSetDone').focus()}
+function closeSet(){$('sets').hidden=true;paused=false;last=now()}
+$('bSet').addEventListener('click',openSet);$('bSet2').addEventListener('click',openSet);$('bSetDone').addEventListener('click',closeSet);
+addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('sets').hidden)closeSet()});
+showSet();
 
 function start(){audioInit();if(A.ctx&&A.ctx.state==='suspended')A.ctx.resume();
   if(mode!=='title')build();

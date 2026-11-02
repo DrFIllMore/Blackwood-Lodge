@@ -38,17 +38,19 @@ body{background:var(--ink);color:var(--bone);font-family:var(--font-u);overflow:
 #alert.on{opacity:1}#alert.amber{color:var(--sodium);text-shadow:0 0 18px rgba(255,160,64,.5),0 2px 4px #000}
 #msg{bottom:calc(env(safe-area-inset-bottom,0px) + 200px);text-align:center;font:italic 400 18px/1.35 var(--font-b);color:var(--bone);text-shadow:0 1px 8px #000,0 0 2px #000;opacity:0;transition:opacity .4s;text-wrap:balance}
 #msg.on{opacity:1}
-#stick{position:fixed;left:max(20px,calc(env(safe-area-inset-left,0px) + 20px));bottom:calc(env(safe-area-inset-bottom,0px) + 26px);width:140px;height:140px;border-radius:50%;border:1px solid var(--line);background:radial-gradient(circle,rgba(8,9,10,.2),rgba(8,9,10,.55));touch-action:none}
+#lzone{position:fixed;left:0;bottom:0;width:46%;height:62%;touch-action:none;z-index:2}
+#stick{position:fixed;left:max(20px,calc(env(safe-area-inset-left,0px) + 20px));bottom:calc(env(safe-area-inset-bottom,0px) + 26px);width:140px;height:140px;border-radius:50%;border:1px solid var(--line);background:radial-gradient(circle,rgba(8,9,10,.2),rgba(8,9,10,.55));pointer-events:none;z-index:3;opacity:.55;transition:opacity .15s,border-color .15s,box-shadow .15s}
+#stick.on{opacity:1}
+#stick.run{border-color:var(--hazard);box-shadow:0 0 0 3px rgba(242,194,48,.25),inset 0 0 22px rgba(242,194,48,.18)}
+#stick::before{content:"RUN";position:absolute;left:50%;top:-20px;transform:translateX(-50%);font:700 10px/1 var(--font-u);letter-spacing:.24em;color:var(--hazard);opacity:.75}
 #knob{position:absolute;left:50%;top:50%;width:58px;height:58px;margin:-29px 0 0 -29px;border-radius:50%;background:rgba(228,225,214,.16);border:1px solid rgba(228,225,214,.45)}
-#btns{position:fixed;right:max(20px,calc(env(safe-area-inset-right,0px) + 20px));bottom:calc(env(safe-area-inset-bottom,0px) + 26px);display:grid;grid-template-columns:auto auto;grid-template-rows:auto auto;gap:12px;align-items:end;justify-items:end}
+#btns{position:fixed;right:max(16px,calc(env(safe-area-inset-right,0px) + 16px));bottom:calc(env(safe-area-inset-bottom,0px) + 26px);display:flex;flex-direction:column;gap:12px;align-items:flex-end;z-index:3;pointer-events:none}
 #btns button{pointer-events:auto;font:700 13px/1 var(--font-u);letter-spacing:.18em;text-transform:uppercase;color:var(--bone);background:var(--glass);border:1px solid var(--line);cursor:pointer;touch-action:none;-webkit-backdrop-filter:blur(5px);backdrop-filter:blur(5px)}
 #btns button:focus-visible{outline:2px solid var(--hazard);outline-offset:2px}
-#bSprint{grid-column:2;grid-row:2;width:96px;height:96px;border-radius:50%;border-color:rgba(228,225,214,.45)!important}
-#bSprint.dn{background:rgba(228,225,214,.2)}
-#bAct{grid-column:1/3;grid-row:1;min-width:132px;height:48px;padding:0 16px;position:relative;overflow:hidden;color:var(--ink)!important;background:var(--hazard)!important;border:0!important;clip-path:polygon(8px 0,100% 0,calc(100% - 8px) 100%,0 100%)}
+#bAct{min-width:150px;height:56px;font-size:14px!important;padding:0 16px;position:relative;overflow:hidden;color:var(--ink)!important;background:var(--hazard)!important;border:0!important;clip-path:polygon(8px 0,100% 0,calc(100% - 8px) 100%,0 100%)}
 #bAct .pr{position:absolute;left:0;bottom:0;height:4px;background:var(--ink);width:0}
 #bAct span{position:relative}
-#bLight{grid-column:1;grid-row:2;width:58px;height:58px;border-radius:50%;font-size:11px!important;letter-spacing:.12em!important}
+#bLight{width:52px;height:52px;border-radius:50%;font-size:11px!important;letter-spacing:.12em!important}
 #bLight.off{color:var(--steel);opacity:.6}
 #hideV{position:fixed;inset:0;pointer-events:none;background:radial-gradient(ellipse 62% 30% at 50% 44%,transparent 60%,rgba(0,0,0,.92) 72%);box-shadow:inset 0 0 0 9999px rgba(0,0,0,0)}
 .scr{position:fixed;inset:0;display:flex;flex-direction:column;justify-content:flex-end;gap:20px;padding-left:max(24px,env(safe-area-inset-left,0px));padding-right:max(24px,env(safe-area-inset-right,0px));padding-top:calc(env(safe-area-inset-top,0px) + 32px);padding-bottom:calc(env(safe-area-inset-bottom,0px) + 36px);background:linear-gradient(180deg,rgba(8,9,10,0) 8%,rgba(8,9,10,.7) 44%,rgba(8,9,10,.97) 100%);overflow-y:auto}
@@ -81,11 +83,11 @@ body{background:var(--ink);color:var(--bone);font-family:var(--font-u);overflow:
 <div class="hud" id="alert"></div>
 <div class="hud" id="msg"></div>
 <div id="hideV" hidden></div>
+<div id="lzone"></div>
 <div id="stick"><div id="knob"></div></div>
 <div id="btns">
   <button id="bAct" type="button" hidden><span class="pr" id="actP"></span><span id="actT">Pull fuse</span></button>
   <button id="bLight" type="button">Torch</button>
-  <button id="bSprint" type="button">Run</button>
 </div>
 
 <section class="scr" id="title">
@@ -93,7 +95,7 @@ body{background:var(--ink);color:var(--bone);font-family:var(--font-u);overflow:
   <h1>Breaker's<br><em>Yard</em></h1>
   <p>You came over the fence for parts. At midnight the gate locked itself, and the man who runs the yard is still here. The gate runs off the yard's power. Pull three fuses from the junction boxes, wire them into the gate panel, and get out.</p>
   <div class="rules">
-    <b>MOVE</b><span>Left stick to walk and sidestep. Drag anywhere on the right to look around. Hold RUN to sprint until you're out of breath.</span>
+    <b>MOVE</b><span>Put your left thumb down anywhere on the left to walk. Push it all the way up to run, until you're out of breath. Drag on the right to look around.</span>
     <b>HIS LAMP</b><span>He sees what his headlamp sees. Floodlights and your torch let him see you from further off.</span>
     <b>HIDE</b><span>Climb into an open wreck. He won't find you, unless he watched you get in.</span>
     <b>FUSES</b><span>Pulling one makes noise. He will come to look.</span>
@@ -133,7 +135,7 @@ const angW=a=>{while(a>Math.PI)a-=2*Math.PI;while(a<-Math.PI)a+=2*Math.PI;return
 /* ---------- renderer ---------- */
 const cv=$('gl');
 const ren=new T.WebGLRenderer({canvas:cv,antialias:false,powerPreference:'high-performance',preserveDrawingBuffer:!!window.__SHOT});
-ren.setPixelRatio(Math.min(devicePixelRatio||1,1.5));
+const PR_MAX=Math.min(devicePixelRatio||1,1.5);let PR=PR_MAX;ren.setPixelRatio(PR);
 ren.outputEncoding=T.sRGBEncoding;ren.toneMapping=T.ACESFilmicToneMapping;ren.toneMappingExposure=1.25;
 const scene=new T.Scene();scene.fog=new T.FogExp2('#14181c',.052);scene.background=new T.Color('#0e1114');
 const cam=new T.PerspectiveCamera(62,1,.05,140);
@@ -500,7 +502,7 @@ const grade=new T.ShaderPass({uniforms:{tDiffuse:{value:null},time:{value:0},fea
    c=mix(c,fc,flash);gl_FragColor=vec4(c,1.);}`});
 comp.addPass(grade);
 let portrait=true;
-function resize(){const w=innerWidth,h=innerHeight;ren.setSize(w,h,false);comp.setSize(w,h);cam.aspect=w/h;portrait=w/h<.8;cam.fov=portrait?70:58;cam.updateProjectionMatrix()}
+function resize(){const w=innerWidth,h=innerHeight;ren.setPixelRatio(PR);if(comp.setPixelRatio)comp.setPixelRatio(PR);ren.setSize(w,h,false);comp.setSize(w,h);cam.aspect=w/h;portrait=w/h<.8;cam.fov=portrait?70:58;cam.updateProjectionMatrix()}
 addEventListener('resize',resize);resize();
 
 /* ---------- audio ---------- */
@@ -544,15 +546,23 @@ function setObj(){const f=L.fusesDone;$('objT').textContent=f<3?`Pull the fuses:
   document.querySelectorAll('.fuses i').forEach((e,k)=>e.classList.toggle('on',k<f))}
 
 /* ---------- input ---------- */
-const inp={jx:0,jy:0,kx:0,ky:0,turn:0,sprint:false,act:false};const look={dx:0,dy:0};let lookId=null,lx=0,ly=0;
-const stick=$('stick'),knob=$('knob');let sid=null,sc=null;
-stick.addEventListener('pointerdown',e=>{e.preventDefault();audioInit();sid=e.pointerId;stick.setPointerCapture(sid);const r=stick.getBoundingClientRect();sc={x:r.left+r.width/2,y:r.top+r.height/2};mv(e)});
-const mv=e=>{if(e.pointerId!==sid)return;let dx=e.clientX-sc.x,dy=e.clientY-sc.y;const d=Math.hypot(dx,dy),m=52;if(d>m){dx*=m/d;dy*=m/d}knob.style.transform=`translate(${dx}px,${dy}px)`;inp.jx=dx/m;inp.jy=-dy/m};
-stick.addEventListener('pointermove',mv);
-const up=e=>{if(e.pointerId!==sid)return;sid=null;inp.jx=inp.jy=0;knob.style.transform=''};stick.addEventListener('pointerup',up);stick.addEventListener('pointercancel',up);
+const inp={jx:0,jy:0,kx:0,ky:0,turn:0,sprint:false,runStick:false,act:false};const look={dx:0,dy:0};let lookId=null,lx=0,ly=0;
+const stick=$('stick'),knob=$('knob'),zone=$('lzone');let sid=null,sc=null;
+const R_STICK=56;
+const mv=e=>{if(e.pointerId!==sid)return;let dx=e.clientX-sc.x,dy=e.clientY-sc.y;const d=Math.hypot(dx,dy);
+  // pushing past the ring drags the base along, so the thumb never runs out of room
+  if(d>R_STICK*1.35){const k=(d-R_STICK*1.35)/d;sc.x+=dx*k;sc.y+=dy*k;stick.style.left=(sc.x-70)+'px';stick.style.top=(sc.y-70)+'px';dx=e.clientX-sc.x;dy=e.clientY-sc.y}
+  const dd=Math.hypot(dx,dy),c=Math.min(1,R_STICK/Math.max(dd,1));knob.style.transform=`translate(${dx*c}px,${dy*c}px)`;
+  inp.jx=clamp(dx/R_STICK,-1,1);inp.jy=clamp(-dy/R_STICK,-1,1);
+  inp.runStick=dd>R_STICK*.92&&-dy>dd*.6;stick.classList.toggle('run',inp.runStick)};
+zone.addEventListener('pointerdown',e=>{if(e.pointerType==='mouse'){lookDown(e);return}e.preventDefault();audioInit();if(sid!==null)return;sid=e.pointerId;try{zone.setPointerCapture(sid)}catch(_){}
+  sc={x:e.clientX,y:e.clientY};stick.style.left=(sc.x-70)+'px';stick.style.top=(sc.y-70)+'px';stick.style.bottom='auto';stick.classList.add('on');mv(e)});
+zone.addEventListener('pointermove',e=>{if(e.pointerType==='mouse'){lookMove(e);return}mv(e)});
+const up=e=>{if(e.pointerType==='mouse'){lookUp(e);return}if(e.pointerId!==sid)return;sid=null;inp.jx=inp.jy=0;inp.runStick=false;knob.style.transform='';stick.style.left=stick.style.top=stick.style.bottom='';stick.classList.remove('on','run')};
+zone.addEventListener('pointerup',up);zone.addEventListener('pointercancel',up);
 const hold=(id,k)=>{const b=$(id);b.addEventListener('pointerdown',e=>{e.preventDefault();audioInit();b.setPointerCapture(e.pointerId);inp[k]=true;b.classList.add('dn')});
   const rel=()=>{inp[k]=false;b.classList.remove('dn')};b.addEventListener('pointerup',rel);b.addEventListener('pointercancel',rel);b.addEventListener('lostpointercapture',rel)};
-hold('bSprint','sprint');hold('bAct','act');
+hold('bAct','act');
 $('bLight').addEventListener('pointerdown',e=>{e.preventDefault();toggleLight()});
 function toggleLight(){if(!L.pl||mode!=='play')return;L.pl.light=!L.pl.light;$('bLight').classList.toggle('off',!L.pl.light);burst(.04,'highpass',3000,1,.15,0)}
 const keys={};
@@ -560,10 +570,12 @@ addEventListener('keydown',e=>{const k=e.key.toLowerCase();if(['arrowup','arrowd
 addEventListener('keyup',e=>{keys[e.key.toLowerCase()]=false});
 function readKeys(){inp.kx=(keys.d?1:0)-(keys.a?1:0);inp.ky=(keys.w||keys.arrowup?1:0)-(keys.s||keys.arrowdown?1:0);inp.turn=(keys.arrowright?1:0)-(keys.arrowleft?1:0)}
 // look: drag anywhere that isn't a control (phone), or the mouse once the pointer is locked (computer)
-cv.addEventListener('pointerdown',e=>{if(mode!=='play')return;audioInit();if(e.pointerType==='mouse'){if(document.pointerLockElement!==cv&&cv.requestPointerLock){try{const r2=cv.requestPointerLock();if(r2&&r2.catch)r2.catch(()=>{})}catch(_){}}if(document.pointerLockElement===cv)return}
-  if(lookId!==null)return;lookId=e.pointerId;lx=e.clientX;ly=e.clientY;try{cv.setPointerCapture(lookId)}catch(_){}});
-cv.addEventListener('pointermove',e=>{if(e.pointerId!==lookId)return;const s=e.pointerType==='mouse'?.0035:.0062;look.dx-=(e.clientX-lx)*s;look.dy-=(e.clientY-ly)*s;lx=e.clientX;ly=e.clientY});
-const endLook=e=>{if(e.pointerId===lookId)lookId=null};cv.addEventListener('pointerup',endLook);cv.addEventListener('pointercancel',endLook);
+function lookDown(e){if(mode!=='play')return;audioInit();if(e.pointerType==='mouse'){if(document.pointerLockElement!==cv&&cv.requestPointerLock){try{const r2=cv.requestPointerLock();if(r2&&r2.catch)r2.catch(()=>{})}catch(_){}}if(document.pointerLockElement===cv)return}
+  if(lookId!==null)return;lookId=e.pointerId;lx=e.clientX;ly=e.clientY;try{e.target.setPointerCapture(lookId)}catch(_){}}
+function lookMove(e){if(e.pointerId!==lookId)return;const s=e.pointerType==='mouse'?.0035:.0062;look.dx-=(e.clientX-lx)*s;look.dy-=(e.clientY-ly)*s;lx=e.clientX;ly=e.clientY}
+function lookUp(e){if(e.pointerId===lookId)lookId=null}
+cv.addEventListener('pointerdown',lookDown);
+cv.addEventListener('pointermove',lookMove);cv.addEventListener('pointerup',lookUp);cv.addEventListener('pointercancel',lookUp);
 document.addEventListener('mousemove',e=>{if(document.pointerLockElement===cv&&mode==='play'){look.dx-=e.movementX*.0024;look.dy-=e.movementY*.0024}});
 
 /* ---------- player ---------- */
@@ -575,7 +587,7 @@ function updatePlayer(dt,t){
   p.yaw-=inp.turn*2.2*dt;p.yaw+=look.dx;p.pitch=clamp(p.pitch+look.dy,-1.25,1.2);look.dx=look.dy=0;
   let mx=clamp(inp.jx+inp.kx,-1,1),my=clamp(inp.jy+inp.ky,-1,1);const m=Math.hypot(mx,my);if(m>1){mx/=m;my/=m}
   if(p.stam<=1)p.tired=true;if(p.tired&&p.stam>30)p.tired=false;
-  p.sprint=(inp.sprint||keys.shift)&&my>.3&&!p.tired;
+  p.sprint=(inp.sprint||inp.runStick||keys.shift)&&my>.3&&!p.tired;
   const moving=m>.12;
   p.stam=clamp(p.stam+(p.sprint?-20:(moving?9:15))*dt,0,100);
   const sp=L.hold>0?0:(p.sprint?5.6:my<0?2.2:3.1);
@@ -680,7 +692,7 @@ function showEnd(){const w=L.endKind==='win',s=Math.round(L.endT-L.t0);
   $('endP').textContent=w?'The road is dark and wet and empty. Behind you the gate grinds, and a headlamp turns slowly toward the sound.':L.fusesDone?'You had '+L.fusesDone+' of the fuses. Break his line of sight before you run out of breath, and hide where he can’t see you climb in.':'He hunts by his headlamp. Stay out of the floodlights, switch your torch off when he is close, and keep the wrecks between you.';
   $('sT').textContent=Math.floor(s/60)+':'+String(s%60).padStart(2,'0');$('sF').textContent=L.fusesDone+'/3';$('sS').textContent=L.seenCount;
   $('bAgain').textContent=w?'Another night':'Go again';
-  $('end').hidden=false;['top','stick','btns'].forEach(id=>$(id).hidden=true);$('bAgain').focus()}
+  $('end').hidden=false;['top','stick','btns','lzone'].forEach(id=>$(id).hidden=true);$('bAgain').focus()}
 
 /* ---------- camera ---------- */
 const camP=new T.Vector3(),camL=new T.Vector3();let camInit=false;
@@ -700,9 +712,12 @@ function updateCamera(dt,t,fear){
 }
 
 /* ---------- loop ---------- */
-let mode='title',last=now(),nextBeat=0;
+let mode='title',last=now(),nextBeat=0;const perf={n:0,sum:0};
 function frame(){
-  const t=now(),dt=Math.min(.05,t-last);last=t;let fear=0;
+  const t=now(),rawDt=t-last,dt=Math.min(.05,rawDt);last=t;let fear=0;
+  // every 2 s: if frames are slow, render fewer pixels; if there's headroom, render more
+  perf.n++;perf.sum+=rawDt;if(perf.sum>2){const avg=perf.sum/perf.n;perf.n=0;perf.sum=0;
+    if(avg>1/42&&PR>.6){PR=Math.max(.6,PR-.15);resize()}else if(avg<1/57&&PR<PR_MAX){PR=Math.min(PR_MAX,PR+.1);resize()}}
   if(mode==='play'&&!L.over){
     updatePlayer(dt,t);updateAction(dt,t);const d=updateHunter(dt,t)??30;
     fear=clamp((18-d)/14,0,1)*(L.hu.state==='chase'?1:.6);
@@ -728,11 +743,11 @@ function frame(){
 
 function start(){audioInit();if(A.ctx&&A.ctx.state==='suspended')A.ctx.resume();
   if(mode!=='title')build();
-  $('title').hidden=true;$('end').hidden=true;['top','stick','btns'].forEach(id=>$(id).hidden=false);$('hideV').hidden=true;$('bLight').classList.remove('off');
+  $('title').hidden=true;$('end').hidden=true;['top','stick','btns','lzone'].forEach(id=>$(id).hidden=false);$('hideV').hidden=true;$('bLight').classList.remove('off');
   grade.uniforms.flash.value=0;mode='play';L.t0=now();camInit=false;L.camYaw=L.pl.yaw;L._cl=0;setObj();
-  setTimeout(()=>say('The gate is chained shut behind you. Find the junction boxes. Look for the green lights.',4200),500);setTimeout(()=>say('Drag on the right side of the screen to look around.',3200),5000)}
+  setTimeout(()=>say('The gate is chained shut behind you. Find the junction boxes. Look for the green lights.',4200),500);setTimeout(()=>say('Left thumb moves. Push it all the way to run. Right thumb looks.',3400),5000)}
 $('bStart').addEventListener('click',start);$('bAgain').addEventListener('click',start);
-['top','stick','btns'].forEach(id=>$(id).hidden=true);
+['top','stick','btns','lzone'].forEach(id=>$(id).hidden=true);
 
 build();
 

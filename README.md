@@ -10,9 +10,9 @@ You came over the fence for parts. At midnight the gate locked itself, and the m
 
 | | Phone | Keyboard |
 |---|---|---|
-| Walk / sidestep | Left stick | W A S D |
+| Walk / sidestep | Put your left thumb down anywhere on the left | W A S D |
 | Look around | Drag on the right side of the screen | Mouse (click the game first); arrow keys turn |
-| Sprint | Hold RUN | Shift |
+| Sprint | Push the left stick all the way up (it glows yellow) | Shift |
 | Pull fuse, hide, wire the gate | Yellow action button | E |
 | Torch on/off | TORCH | F |
 

@@ -4,7 +4,7 @@ A night-time chase in a scrapyard, played in the browser on a phone or a compute
 
 You came over the fence for parts. At midnight the gate locked itself, and the man who runs the yard is still here. Pull three fuses from the junction boxes, wire them into the gate panel, and get out before he finds you.
 
-**Play:** https://drfillmore.github.io/blackwood-lodge/
+**Play:** https://drfillmore.github.io/Blackwood-Lodge/
 
 ## How to play
 

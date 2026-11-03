@@ -22,7 +22,7 @@ You came over the fence for parts. At midnight the gate locked itself, and the m
 
 ## Settings
 
-Tap **Settings** (top right of the title screen, or under the breath bar during play). **Look control** chooses swipe-to-look (default, like mobile shooters) or a look stick. **Look speed** sets how fast swiping, the stick or the mouse turns your view. Under **Graphics**, **Shadows** can be switched off if the game runs slowly (it also switches itself off on phones that can't keep up). Under **Comfort**, if moving around makes you queasy, you can switch off head bob, screen shake and sprint zoom. The game pauses while the panel is open, and your choices are remembered on that device.
+Tap **Settings** (top right of the title screen, or under the breath bar during play). **Look control** chooses swipe-to-look (default, like mobile shooters) or a look stick. **Look speed** sets how fast swiping, the stick or the mouse turns your view. Under **Graphics**, **Quality** is Low, Medium (default) or High. Pick Low if the game stutters; it also steps down by itself on phones that can't keep up. Under **Comfort**, if moving around makes you queasy, you can switch off head bob, screen shake and sprint zoom. The game pauses while the panel is open, and your choices are remembered on that device.
 
 ## Reporting a problem
 

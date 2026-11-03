@@ -11,7 +11,7 @@ You came over the fence for parts. At midnight the gate locked itself, and the m
 | | Phone | Keyboard |
 |---|---|---|
 | Walk / sidestep | Put your left thumb down anywhere on the left | W A S D |
-| Look around | Right stick (hold to the side to keep turning) | Mouse (click the game first); arrow keys turn |
+| Look around | Swipe on the right side (or switch to a look stick in Settings) | Mouse (click the game first); arrow keys turn |
 | Sprint | Push the left stick all the way up (it glows yellow) | Shift |
 | Pull fuse, hide, wire the gate | Yellow action button | E |
 | Torch on/off | TORCH | F |
@@ -22,7 +22,7 @@ You came over the fence for parts. At midnight the gate locked itself, and the m
 
 ## Settings
 
-Tap **Settings** (top right of the title screen, or under the breath bar during play). **Look speed** sets how fast the right stick, a drag or the mouse turns your view. Under **Comfort**, if moving around makes you queasy, you can switch off head bob, screen shake and sprint zoom. The game pauses while the panel is open, and your choices are remembered on that device.
+Tap **Settings** (top right of the title screen, or under the breath bar during play). **Look control** chooses swipe-to-look (default, like mobile shooters) or a look stick. **Look speed** sets how fast swiping, the stick or the mouse turns your view. Under **Comfort**, if moving around makes you queasy, you can switch off head bob, screen shake and sprint zoom. The game pauses while the panel is open, and your choices are remembered on that device.
 
 ## Reporting a problem
 

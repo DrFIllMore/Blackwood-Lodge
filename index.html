@@ -40,6 +40,8 @@ body{background:var(--ink);color:var(--bone);font-family:var(--font-u);overflow:
 #msg.on{opacity:1}
 #lzone{position:fixed;left:0;bottom:0;width:48%;height:55%;touch-action:none;z-index:2}
 #rzone{position:fixed;right:0;bottom:0;width:48%;height:55%;touch-action:none;z-index:2}
+body.swipe #rzone{width:52%;height:auto;top:calc(env(safe-area-inset-top,0px) + 120px)}
+body.swipe #rstick{display:none}
 #stick{position:fixed;left:max(20px,calc(env(safe-area-inset-left,0px) + 20px));bottom:calc(env(safe-area-inset-bottom,0px) + 26px);width:140px;height:140px;border-radius:50%;border:1px solid var(--line);background:radial-gradient(circle,rgba(8,9,10,.2),rgba(8,9,10,.55));pointer-events:none;z-index:3;opacity:.55;transition:opacity .15s,border-color .15s,box-shadow .15s}
 #stick.on,#rstick.on{opacity:1}
 #rstick{position:fixed;right:max(20px,calc(env(safe-area-inset-right,0px) + 20px));bottom:calc(env(safe-area-inset-bottom,0px) + 26px);width:140px;height:140px;border-radius:50%;border:1px solid var(--line);background:radial-gradient(circle,rgba(8,9,10,.2),rgba(8,9,10,.55));pointer-events:none;z-index:3;opacity:.55;transition:opacity .15s}
@@ -106,6 +108,11 @@ body{background:var(--ink);color:var(--bone);font-family:var(--font-u);overflow:
 #logN{width:100%;box-sizing:border-box;height:44px;padding:0 12px;background:#0a0b0c;color:var(--bone);border:1px solid var(--line);font:15px var(--font-b)}
 #logN:focus-visible,#logT:focus-visible{outline:2px solid var(--hazard);outline-offset:1px}
 .endlinks{display:flex;gap:10px;flex-wrap:wrap}
+/* look control choice */
+.seg{flex:none;display:flex;border:1px solid var(--line)}
+.seg button{height:38px;padding:0 12px;background:transparent;border:0;color:var(--steel);font:700 12px/1 var(--font-u);letter-spacing:.16em;text-transform:uppercase;cursor:pointer}
+.seg button[aria-checked="true"]{background:var(--hazard);color:var(--ink)}
+.seg button:focus-visible{outline:2px solid var(--hazard);outline-offset:2px}
 /* look speed slider */
 .lookopt>div{flex:1}
 .lookopt output{font:600 15px var(--font-u);color:var(--hazard);margin-left:8px;font-variant-numeric:tabular-nums}
@@ -144,7 +151,7 @@ body{background:var(--ink);color:var(--bone);font-family:var(--font-u);overflow:
   <h1>Breaker's<br><em>Yard</em></h1>
   <p>You came over the fence for parts. At midnight the gate locked itself, and the man who runs the yard is still here. The gate runs off the yard's power. Pull three fuses from the junction boxes, wire them into the gate panel, and get out.</p>
   <div class="rules">
-    <b>MOVE</b><span>Left stick walks. Push it all the way up to run, until you're out of breath. Right stick looks around: hold it to the side to keep turning.</span>
+    <b>MOVE</b><span>Left stick walks. Push it all the way up to run, until you're out of breath. Swipe on the right side to look around.</span>
     <b>HIS LAMP</b><span>He sees what his headlamp sees. Floodlights and your torch let him see you from further off.</span>
     <b>HIDE</b><span>Climb into an open wreck. He won't find you, unless he watched you get in.</span>
     <b>FUSES</b><span>Pulling one makes noise. He will come to look.</span>
@@ -157,7 +164,9 @@ body{background:var(--ink);color:var(--bone);font-family:var(--font-u);overflow:
   <div class="sheet">
     <h3 id="setsH">Settings</h3>
     <p class="note">The game is paused while this is open. Your choices are kept on this device. <span class="ver" id="verS"></span></p>
-    <div class="opt lookopt"><div><b>Look speed <output id="oLookV" for="oLook">1.0×</output></b><span>How fast the right stick, a drag or the mouse turns your view.</span>
+    <div class="opt"><div><b>Look control</b><span>Swipe: the view follows your finger, like mobile shooters. Stick: hold to keep turning.</span></div>
+      <div class="seg" role="radiogroup" aria-label="Look control"><button type="button" role="radio" id="mSwipe">Swipe</button><button type="button" role="radio" id="mStick">Stick</button></div></div>
+    <div class="opt lookopt"><div><b>Look speed <output id="oLookV" for="oLook">1.0×</output></b><span>How fast swiping, the look stick or the mouse turns your view.</span>
       <input id="oLook" type="range" min="0.3" max="2.5" step="0.1" value="1" aria-label="Look speed"><span class="ends"><i>Slower</i><i>Faster</i></span></div></div>
     <p class="sub">Comfort</p>
     <p class="note">If moving around makes you feel queasy, switch these off.</p>
@@ -216,7 +225,7 @@ const ren=new T.WebGLRenderer({canvas:cv,antialias:false,powerPreference:'high-p
 const PR_MAX=Math.min(devicePixelRatio||1,1.5);let PR=PR_MAX;ren.setPixelRatio(PR);
 ren.outputEncoding=T.sRGBEncoding;ren.toneMapping=T.ACESFilmicToneMapping;ren.toneMappingExposure=1.25;
 /* ---------- game log: device, controls, frame rate, events, errors ---------- */
-const VER='2026-11-03e';
+const VER='2026-11-03f';
 const LG={lines:[],t0:Date.now(),dirty:false,prev:null,counts:{}};
 try{LG.prev=JSON.parse(localStorage.getItem('by_log')||'null')}catch(_){}
 function log(kind,msg){const line=((Date.now()-LG.t0)/1000).toFixed(1).padStart(7)+'s  '+kind.padEnd(6)+' '+msg;LG.lines.push(line);if(LG.lines.length>900)LG.lines.splice(0,LG.lines.length-900);LG.dirty=true}
@@ -746,10 +755,20 @@ function stickRelease(){sid=null;inp.jx=inp.jy=0;inp.runStick=false;knob.style.t
 const up=e=>{if(e.pointerType==='mouse'){lookUp(e);return}if(e.pointerId!==sid)return;if(e.type==='pointercancel')logOnce('cancel','input','left thumb: browser cancelled the touch');stickRelease()};
 const IN={stickDowns:0,lookDowns:0,rDowns:0};
 const rzone=$('rzone'),rstick=$('rstick'),rknob=$('rknob');let rid=null,rsc=null;const rin={x:0,y:0};
-function rMove(e){if(e.pointerId!==rid)return;let dx=e.clientX-rsc.x,dy=e.clientY-rsc.y;const d=Math.hypot(dx,dy);
+// SWIPE mode (default, like mobile shooters): the view follows your finger 1:1, no lag, no build-up.
+// STICK mode (option): hold the stick to keep turning.
+const SWIPE_K=.0072;   // radians of turn per screen pixel at look speed 1.0
+function swipeDelta(e){let dx=0,dy=0;const evs=e.getCoalescedEvents?e.getCoalescedEvents():null;const list=evs&&evs.length?evs:[e];
+  for(const q of list){dx+=q.clientX-rsc.x;dy+=q.clientY-rsc.y;rsc.x=q.clientX;rsc.y=q.clientY}
+  // a single impossible jump (a second finger mistaken for this one) is ignored
+  if(Math.abs(dx)>220||Math.abs(dy)>220){logOnce('jump','input','ignored a sudden '+Math.round(dx)+','+Math.round(dy)+' px jump');return}
+  const k=SWIPE_K*SET.look;look.dx-=dx*k;look.dy-=dy*k*.8}
+function rMove(e){if(e.pointerId!==rid)return;if(SET.lookMode==='swipe'){swipeDelta(e);return}
+  let dx=e.clientX-rsc.x,dy=e.clientY-rsc.y;
   const dd=Math.hypot(dx,dy),c=Math.min(1,R_STICK/Math.max(dd,1));rknob.style.transform=`translate(${dx*c}px,${dy*c}px)`;rin.x=clamp(dx/R_STICK,-1,1);rin.y=clamp(-dy/R_STICK,-1,1)}
-function rDown(e){audioInit();if(rid!==null){logOnce('stuckr','input','look stick: an earlier touch never ended, taking over');rRelease()}rid=e.pointerId;IN.rDowns++;if(IN.rDowns<=2)log('input','right thumb (look stick) down');
-  rsc={x:e.clientX,y:e.clientY};rstick.style.left=(rsc.x-70)+'px';rstick.style.top=(rsc.y-70)+'px';rstick.style.right='auto';rstick.style.bottom='auto';rstick.classList.add('on');rMove(e)}
+function rDown(e){audioInit();if(rid!==null){logOnce('stuckr','input','right thumb: an earlier touch never ended, taking over');rRelease()}rid=e.pointerId;IN.rDowns++;if(IN.rDowns<=2)log('input','right thumb down ('+SET.lookMode+')');
+  rsc={x:e.clientX,y:e.clientY};if(SET.lookMode==='swipe')return;
+  rstick.style.left=(rsc.x-70)+'px';rstick.style.top=(rsc.y-70)+'px';rstick.style.right='auto';rstick.style.bottom='auto';rstick.classList.add('on');rMove(e)}
 function rRelease(){rid=null;rin.x=rin.y=0;rknob.style.transform='';rstick.style.left=rstick.style.top=rstick.style.right=rstick.style.bottom='';rstick.classList.remove('on')}
 if(window.PointerEvent){
   zone.addEventListener('pointerdown',e=>{if(e.pointerType==='mouse'){lookDown(e);return}e.preventDefault();stickDown(e);try{zone.setPointerCapture(e.pointerId)}catch(_){}});
@@ -806,7 +825,7 @@ function updatePlayer(dt,t){
   p.yawV=ease2(p.yawV||0,tYaw);p.pitV=ease2(p.pitV||0,tPit);
   if(Math.abs(p.yawV)<.002&&tYaw===0)p.yawV=0;if(Math.abs(p.pitV)<.002&&tPit===0)p.pitV=0;
   // drags and the mouse move the view directly, but one jerky frame can't fling it
-  const lim=.09;p.yaw+=p.yawV*dt+clamp(look.dx,-lim,lim);p.pitch=clamp(p.pitch+p.pitV*dt+clamp(look.dy,-lim,lim),-.95,.85);look.dx=look.dy=0;p.yawT=p.yaw;p.pitchT=p.pitch;
+  p.yaw+=p.yawV*dt+look.dx;p.pitch=clamp(p.pitch+p.pitV*dt+look.dy,-1.1,1.0);look.dx=look.dy=0;p.yawT=p.yaw;p.pitchT=p.pitch;
   // while you walk and aren't aiming up or down, the view drifts back to level
   if(rid===null&&lookId===null&&Math.hypot(inp.jx+inp.kx,inp.jy+inp.ky)>.3)p.pitch+=(-.05-p.pitch)*Math.min(1,dt*1.2);
   let mx=clamp(inp.jx+inp.kx,-1,1),my=clamp(inp.jy+inp.ky,-1,1);const m=Math.hypot(mx,my);if(m>1){mx/=m;my/=m}
@@ -814,9 +833,9 @@ function updatePlayer(dt,t){
   p.sprint=(inp.sprint||inp.runStick||keys.shift)&&my>.3&&!p.tired;
   const moving=m>.12;
   p.stam=clamp(p.stam+(p.sprint?-20:(moving?9:15))*dt,0,100);
-  const sp=L.hold>0?0:(p.sprint?5.6:my<0?2.2:3.1);
+  const sp=L.hold>0?0:(p.sprint?6.0:my<0?2.6:3.6);
   const fx=-Math.sin(p.yaw),fz=-Math.cos(p.yaw),rx=Math.cos(p.yaw),rz=-Math.sin(p.yaw);
-  const tvx=(fx*my+rx*mx*.85)*sp,tvz=(fz*my+rz*mx*.85)*sp,acc=Math.min(1,dt*(moving?9:12));
+  const tvx=(fx*my+rx*mx*.85)*sp,tvz=(fz*my+rz*mx*.85)*sp,acc=Math.min(1,dt*(moving?16:20));
   p.vx=lerp(p.vx,tvx,acc);p.vz=lerp(p.vz,tvz,acc);
   const o={x:p.x+p.vx*dt,z:p.z+p.vz*dt};pushOut(o,.36);pushOut(o,.36);p.x=o.x;p.z=o.z;
   const as=Math.hypot(p.vx,p.vz);p.speed=as;p.strafe=lerp(p.strafe||0,mx*clamp(as/3,0,1),Math.min(1,dt*6));
@@ -1036,12 +1055,13 @@ $('bLogCopy').addEventListener('click',()=>{const n=$('logN').value.trim();if(n)
 $('bLogClear').addEventListener('click',()=>{LG.lines=[];LG.prev=null;try{localStorage.removeItem('by_log')}catch(_){}log('ui','log cleared');$('logT').value=logText()});
 
 /* ---------- comfort settings (kept on this device) ---------- */
-const SET={bob:true,shake:true,zoom:true,look:1};
+const SET={bob:true,shake:true,zoom:true,look:1,lookMode:'swipe'};
 try{Object.assign(SET,JSON.parse(localStorage.getItem('by_comfort')||'{}'))}catch(_){}
 const SW={bob:$('oBob'),shake:$('oShake'),zoom:$('oZoom')};
-function showSet(){Object.keys(SW).forEach(k=>SW[k].setAttribute('aria-checked',SET[k]?'true':'false'));SET.look=clamp(+SET.look||1,.3,2.5);$('oLook').value=SET.look;$('oLookV').textContent=SET.look.toFixed(1)+'×'}
+function showSet(){if(SET.lookMode!=='stick')SET.lookMode='swipe';document.body.classList.toggle('swipe',SET.lookMode==='swipe');$('mSwipe').setAttribute('aria-checked',SET.lookMode==='swipe'?'true':'false');$('mStick').setAttribute('aria-checked',SET.lookMode==='stick'?'true':'false');Object.keys(SW).forEach(k=>SW[k].setAttribute('aria-checked',SET[k]?'true':'false'));SET.look=clamp(+SET.look||1,.3,2.5);$('oLook').value=SET.look;$('oLookV').textContent=SET.look.toFixed(1)+'×'}
 function saveSet(){try{localStorage.setItem('by_comfort',JSON.stringify(SET))}catch(_){}showSet()}
 Object.keys(SW).forEach(k=>SW[k].addEventListener('click',()=>{SET[k]=!SET[k];saveSet();log('ui','comfort: '+k+' '+(SET[k]?'on':'off'))}));
+['Swipe','Stick'].forEach(n=>$('m'+n).addEventListener('click',()=>{SET.lookMode=n.toLowerCase();rRelease();saveSet();log('ui','look control '+SET.lookMode)}));
 $('oLook').addEventListener('input',e=>{SET.look=+e.target.value;$('oLookV').textContent=SET.look.toFixed(1)+'×'});
 $('oLook').addEventListener('change',()=>{saveSet();log('ui','look speed '+SET.look.toFixed(1))});
 $('bCalm').addEventListener('click',()=>{SET.bob=SET.shake=SET.zoom=false;saveSet()});
@@ -1056,7 +1076,7 @@ function start(){log('run','--- new run ---');audioInit();score.restore();if(A.c
   $('title').hidden=true;$('end').hidden=true;['top','stick','btns','lzone','rzone','rstick'].forEach(id=>$(id).hidden=false);$('hideV').hidden=true;$('bLight').classList.remove('off');
   grade.uniforms.flash.value=0;grade.uniforms.fc.value.set(0,0,0);mode='play';L.t0=now();camInit=false;L.camYaw=L.pl.yaw;L._cl=0;setObj();
   log('run','gate at column '+L.gi+', fuses at '+L.fuses.map(f=>f.i+','+f.j).join(' / ')+', hiding wrecks '+L.hides.length+', audio '+(A.ctx?A.ctx.state:'off')+', comfort '+JSON.stringify(SET));IN.stickDowns=IN.lookDowns=0;tr.last=now();tr.x=L.pl.x;tr.z=L.pl.z;
-  setTimeout(()=>say('The gate is chained shut behind you. Find the junction boxes. Look for the green lights.',4200),500);setTimeout(()=>say('Left stick moves, push it to the edge to run. Right stick looks around.',3400),5000)}
+  setTimeout(()=>say('The gate is chained shut behind you. Find the junction boxes. Look for the green lights.',4200),500);setTimeout(()=>say(SET.lookMode==='swipe'?'Left stick moves, push it to the edge to run. Swipe on the right to look.':'Left stick moves, push it to the edge to run. Right stick looks around.',3400),5000)}
 addEventListener('pointerdown',()=>{if(L.over&&L.endKind==='lose'&&now()-L.endT>1.2&&$('end').hidden)showEnd()});
 $('bStart').addEventListener('click',start);$('bAgain').addEventListener('click',start);
 ['top','stick','btns','lzone','rzone','rstick'].forEach(id=>$(id).hidden=true);

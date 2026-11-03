@@ -38,13 +38,17 @@ body{background:var(--ink);color:var(--bone);font-family:var(--font-u);overflow:
 #alert.on{opacity:1}#alert.amber{color:var(--sodium);text-shadow:0 0 18px rgba(255,160,64,.5),0 2px 4px #000}
 #msg{bottom:calc(env(safe-area-inset-bottom,0px) + 200px);text-align:center;font:italic 400 18px/1.35 var(--font-b);color:var(--bone);text-shadow:0 1px 8px #000,0 0 2px #000;opacity:0;transition:opacity .4s;text-wrap:balance}
 #msg.on{opacity:1}
-#lzone{position:fixed;left:0;bottom:0;width:46%;height:62%;touch-action:none;z-index:2}
+#lzone{position:fixed;left:0;bottom:0;width:48%;height:55%;touch-action:none;z-index:2}
+#rzone{position:fixed;right:0;bottom:0;width:48%;height:55%;touch-action:none;z-index:2}
 #stick{position:fixed;left:max(20px,calc(env(safe-area-inset-left,0px) + 20px));bottom:calc(env(safe-area-inset-bottom,0px) + 26px);width:140px;height:140px;border-radius:50%;border:1px solid var(--line);background:radial-gradient(circle,rgba(8,9,10,.2),rgba(8,9,10,.55));pointer-events:none;z-index:3;opacity:.55;transition:opacity .15s,border-color .15s,box-shadow .15s}
-#stick.on{opacity:1}
+#stick.on,#rstick.on{opacity:1}
+#rstick{position:fixed;right:max(20px,calc(env(safe-area-inset-right,0px) + 20px));bottom:calc(env(safe-area-inset-bottom,0px) + 26px);width:140px;height:140px;border-radius:50%;border:1px solid var(--line);background:radial-gradient(circle,rgba(8,9,10,.2),rgba(8,9,10,.55));pointer-events:none;z-index:3;opacity:.55;transition:opacity .15s}
+#rstick::before{content:"LOOK";position:absolute;left:50%;top:-20px;transform:translateX(-50%);font:700 10px/1 var(--font-u);letter-spacing:.24em;color:var(--bone);opacity:.7}
+#rknob{position:absolute;left:50%;top:50%;width:58px;height:58px;margin:-29px 0 0 -29px;border-radius:50%;background:rgba(228,225,214,.16);border:1px solid rgba(228,225,214,.45)}
 #stick.run{border-color:var(--hazard);box-shadow:0 0 0 3px rgba(242,194,48,.25),inset 0 0 22px rgba(242,194,48,.18)}
 #stick::before{content:"RUN";position:absolute;left:50%;top:-20px;transform:translateX(-50%);font:700 10px/1 var(--font-u);letter-spacing:.24em;color:var(--hazard);opacity:.75}
 #knob{position:absolute;left:50%;top:50%;width:58px;height:58px;margin:-29px 0 0 -29px;border-radius:50%;background:rgba(228,225,214,.16);border:1px solid rgba(228,225,214,.45)}
-#btns{position:fixed;right:max(16px,calc(env(safe-area-inset-right,0px) + 16px));bottom:calc(env(safe-area-inset-bottom,0px) + 26px);display:flex;flex-direction:column;gap:12px;align-items:flex-end;z-index:3;pointer-events:none}
+#btns{position:fixed;right:max(16px,calc(env(safe-area-inset-right,0px) + 16px));bottom:calc(env(safe-area-inset-bottom,0px) + 236px);display:flex;flex-direction:column;gap:12px;align-items:flex-end;z-index:3;pointer-events:none}
 #btns button{pointer-events:auto;font:700 13px/1 var(--font-u);letter-spacing:.18em;text-transform:uppercase;color:var(--bone);background:var(--glass);border:1px solid var(--line);cursor:pointer;touch-action:none;-webkit-backdrop-filter:blur(5px);backdrop-filter:blur(5px)}
 #btns button:focus-visible{outline:2px solid var(--hazard);outline-offset:2px}
 #bAct{min-width:150px;height:56px;font-size:14px!important;padding:0 16px;position:relative;overflow:hidden;color:var(--ink)!important;background:var(--hazard)!important;border:0!important;clip-path:polygon(8px 0,100% 0,calc(100% - 8px) 100%,0 100%)}
@@ -115,6 +119,8 @@ body{background:var(--ink);color:var(--bone);font-family:var(--font-u);overflow:
 <div id="hideV" hidden></div>
 <div id="lzone"></div>
 <div id="stick"><div id="knob"></div></div>
+<div id="rzone"></div>
+<div id="rstick"><div id="rknob"></div></div>
 <div id="btns">
   <button id="bAct" type="button" hidden><span class="pr" id="actP"></span><span id="actT">Pull fuse</span></button>
   <button id="bLight" type="button">Torch</button>
@@ -126,7 +132,7 @@ body{background:var(--ink);color:var(--bone);font-family:var(--font-u);overflow:
   <h1>Breaker's<br><em>Yard</em></h1>
   <p>You came over the fence for parts. At midnight the gate locked itself, and the man who runs the yard is still here. The gate runs off the yard's power. Pull three fuses from the junction boxes, wire them into the gate panel, and get out.</p>
   <div class="rules">
-    <b>MOVE</b><span>Put your left thumb down anywhere on the left to walk. Push it all the way up to run, until you're out of breath. Drag on the right to look around.</span>
+    <b>MOVE</b><span>Left stick walks. Push it all the way up to run, until you're out of breath. Right stick looks around: hold it to the side to keep turning.</span>
     <b>HIS LAMP</b><span>He sees what his headlamp sees. Floodlights and your torch let him see you from further off.</span>
     <b>HIDE</b><span>Climb into an open wreck. He won't find you, unless he watched you get in.</span>
     <b>FUSES</b><span>Pulling one makes noise. He will come to look.</span>
@@ -193,7 +199,7 @@ const ren=new T.WebGLRenderer({canvas:cv,antialias:false,powerPreference:'high-p
 const PR_MAX=Math.min(devicePixelRatio||1,1.5);let PR=PR_MAX;ren.setPixelRatio(PR);
 ren.outputEncoding=T.sRGBEncoding;ren.toneMapping=T.ACESFilmicToneMapping;ren.toneMappingExposure=1.25;
 /* ---------- game log: device, controls, frame rate, events, errors ---------- */
-const VER='2026-11-03a';
+const VER='2026-11-03b';
 const LG={lines:[],t0:Date.now(),dirty:false,prev:null,counts:{}};
 try{LG.prev=JSON.parse(localStorage.getItem('by_log')||'null')}catch(_){}
 function log(kind,msg){const line=((Date.now()-LG.t0)/1000).toFixed(1).padStart(7)+'s  '+kind.padEnd(6)+' '+msg;LG.lines.push(line);if(LG.lines.length>900)LG.lines.splice(0,LG.lines.length-900);LG.dirty=true}
@@ -722,23 +728,34 @@ function stickDown(e){audioInit();
   sc={x:e.clientX,y:e.clientY};stick.style.left=(sc.x-70)+'px';stick.style.top=(sc.y-70)+'px';stick.style.bottom='auto';stick.classList.add('on');mv(e)}
 function stickRelease(){sid=null;inp.jx=inp.jy=0;inp.runStick=false;knob.style.transform='';stick.style.left=stick.style.top=stick.style.bottom='';stick.classList.remove('on','run')}
 const up=e=>{if(e.pointerType==='mouse'){lookUp(e);return}if(e.pointerId!==sid)return;if(e.type==='pointercancel')logOnce('cancel','input','left thumb: browser cancelled the touch');stickRelease()};
-const IN={stickDowns:0,lookDowns:0};
+const IN={stickDowns:0,lookDowns:0,rDowns:0};
+const rzone=$('rzone'),rstick=$('rstick'),rknob=$('rknob');let rid=null,rsc=null;const rin={x:0,y:0};
+function rMove(e){if(e.pointerId!==rid)return;let dx=e.clientX-rsc.x,dy=e.clientY-rsc.y;const d=Math.hypot(dx,dy);
+  if(d>R_STICK*1.35){const k=(d-R_STICK*1.35)/d;rsc.x+=dx*k;rsc.y+=dy*k;rstick.style.left=(rsc.x-70)+'px';rstick.style.top=(rsc.y-70)+'px';dx=e.clientX-rsc.x;dy=e.clientY-rsc.y}
+  const dd=Math.hypot(dx,dy),c=Math.min(1,R_STICK/Math.max(dd,1));rknob.style.transform=`translate(${dx*c}px,${dy*c}px)`;rin.x=clamp(dx/R_STICK,-1,1);rin.y=clamp(-dy/R_STICK,-1,1)}
+function rDown(e){audioInit();if(rid!==null){logOnce('stuckr','input','look stick: an earlier touch never ended, taking over');rRelease()}rid=e.pointerId;IN.rDowns++;if(IN.rDowns<=2)log('input','right thumb (look stick) down');
+  rsc={x:e.clientX,y:e.clientY};rstick.style.left=(rsc.x-70)+'px';rstick.style.top=(rsc.y-70)+'px';rstick.style.right='auto';rstick.style.bottom='auto';rstick.classList.add('on');rMove(e)}
+function rRelease(){rid=null;rin.x=rin.y=0;rknob.style.transform='';rstick.style.left=rstick.style.top=rstick.style.right=rstick.style.bottom='';rstick.classList.remove('on')}
 if(window.PointerEvent){
   zone.addEventListener('pointerdown',e=>{if(e.pointerType==='mouse'){lookDown(e);return}e.preventDefault();stickDown(e);try{zone.setPointerCapture(e.pointerId)}catch(_){}});
   zone.addEventListener('pointermove',e=>{if(e.pointerType==='mouse'){lookMove(e);return}mv(e)});
   zone.addEventListener('pointerup',up);zone.addEventListener('pointercancel',up);zone.addEventListener('lostpointercapture',e=>{if(e.pointerId===sid){logOnce('lost','input','left thumb: lost touch capture');}});
+  rzone.addEventListener('pointerdown',e=>{if(e.pointerType==='mouse'){lookDown(e);return}e.preventDefault();rDown(e);try{rzone.setPointerCapture(e.pointerId)}catch(_){}});
+  rzone.addEventListener('pointermove',e=>{if(e.pointerType==='mouse'){lookMove(e);return}rMove(e)});
+  const rUp=e=>{if(e.pointerType==='mouse'){lookUp(e);return}if(e.pointerId===rid)rRelease()};rzone.addEventListener('pointerup',rUp);rzone.addEventListener('pointercancel',rUp);
   // a finger lifted anywhere always releases the control it was driving
-  addEventListener('pointerup',e=>{if(e.pointerId===sid)stickRelease();if(e.pointerId===lookId)lookId=null},true);
-  addEventListener('pointercancel',e=>{if(e.pointerId===sid)stickRelease();if(e.pointerId===lookId)lookId=null},true);
-  addEventListener('pointermove',e=>{if(e.pointerId===sid&&e.target!==zone)mv(e);else if(e.pointerId===lookId&&e.target!==cv)lookMove(e)},true);
+  addEventListener('pointerup',e=>{if(e.pointerId===sid)stickRelease();if(e.pointerId===rid)rRelease();if(e.pointerId===lookId)lookId=null},true);
+  addEventListener('pointercancel',e=>{if(e.pointerId===sid)stickRelease();if(e.pointerId===rid)rRelease();if(e.pointerId===lookId)lookId=null},true);
+  addEventListener('pointermove',e=>{if(e.pointerId===sid&&e.target!==zone)mv(e);else if(e.pointerId===rid&&e.target!==rzone)rMove(e);else if(e.pointerId===lookId&&e.target!==cv)lookMove(e)},true);
 }else{
   // older phones without pointer events: the same controls from touch events
   log('input','no pointer events on this browser, using touch events');
   const P=(t)=>({pointerId:1000+t.identifier,clientX:t.clientX,clientY:t.clientY,pointerType:'touch',target:t.target,type:'touch'});
   zone.addEventListener('touchstart',e=>{e.preventDefault();stickDown(P(e.changedTouches[0]))},{passive:false});
+  rzone.addEventListener('touchstart',e=>{e.preventDefault();rDown(P(e.changedTouches[0]))},{passive:false});
   cv.addEventListener('touchstart',e=>{e.preventDefault();lookDown(P(e.changedTouches[0]))},{passive:false});
-  addEventListener('touchmove',e=>{for(const t of e.changedTouches){const q=P(t);if(q.pointerId===sid)mv(q);else if(q.pointerId===lookId)lookMove(q)}},{passive:false});
-  const end=e=>{for(const t of e.changedTouches){const id=1000+t.identifier;if(id===sid)stickRelease();if(id===lookId)lookId=null}};addEventListener('touchend',end);addEventListener('touchcancel',end);
+  addEventListener('touchmove',e=>{for(const t of e.changedTouches){const q=P(t);if(q.pointerId===sid)mv(q);else if(q.pointerId===rid)rMove(q);else if(q.pointerId===lookId)lookMove(q)}},{passive:false});
+  const end=e=>{for(const t of e.changedTouches){const id=1000+t.identifier;if(id===sid)stickRelease();if(id===rid)rRelease();if(id===lookId)lookId=null}};addEventListener('touchend',end);addEventListener('touchcancel',end);
 }
 // stop the page itself scrolling, zooming or bouncing while you play
 document.addEventListener('touchmove',e=>{if(mode==='play'&&$('logv').hidden&&$('sets').hidden)e.preventDefault()},{passive:false});
@@ -766,7 +783,10 @@ function updatePlayer(dt,t){
   if(p.hidden){torchRig.visible=false;return}
   torchRig.visible=true;
   // look: drag / mouse handled by input; arrow keys turn too
-  p.yawT=(p.yawT??p.yaw)-inp.turn*2.2*dt+look.dx;p.pitchT=clamp((p.pitchT??p.pitch)+look.dy,-1.25,1.2);look.dx=look.dy=0;
+  const cv2=v=>{const a=Math.abs(v)<.08?0:(Math.abs(v)-.08)/.92;return Math.sign(v)*a*a*(.35+.65*a)};
+  p.yawT=(p.yawT??p.yaw)-inp.turn*2.2*dt+look.dx-cv2(rin.x)*3.0*dt;p.pitchT=clamp((p.pitchT??p.pitch)+look.dy+cv2(rin.y)*1.6*dt,-1.25,1.2);look.dx=look.dy=0;
+  // while you walk and aren't aiming up or down, the view drifts back to level
+  if(rid===null&&lookId===null&&Math.hypot(inp.jx+inp.kx,inp.jy+inp.ky)>.3)p.pitchT+=(-.05-p.pitchT)*Math.min(1,dt*1.2);
   const lk=1-Math.exp(-dt*28);p.yaw+=(p.yawT-p.yaw)*lk;p.pitch+=(p.pitchT-p.pitch)*lk;
   let mx=clamp(inp.jx+inp.kx,-1,1),my=clamp(inp.jy+inp.ky,-1,1);const m=Math.hypot(mx,my);if(m>1){mx/=m;my/=m}
   if(p.stam<=1)p.tired=true;if(p.tired&&p.stam>30)p.tired=false;
@@ -875,7 +895,7 @@ function caught(){if(L.over)return;const p=L.pl,h=L.hu;log('event','CAUGHT after
   const dragDir=clear(p.x,p.z,p.x+ux*3,p.z+uz*3)?1:clear(p.x,p.z,p.x-ux*3,p.z-uz*3)?-1:0;
   const dropped=new T.SpotLight('#fff1d6',0,9,.55,.5,1.2);dropped.position.set(p.x-uz*.35-ux*.3,.12,p.z+ux*.35-uz*.3);dropped.target.position.set(h.x,1.4,h.z);world.add(dropped,dropped.target);
   L.kill={x0:p.x,z0:p.z,ux,uz,hx0:h.x,hz0:h.z,dragDir,sfx:{},dropped};
-  ['top','stick','btns','lzone'].forEach(id=>$(id).hidden=true);if(document.pointerLockElement)document.exitPointerLock();
+  ['top','stick','btns','lzone','rzone','rstick'].forEach(id=>$(id).hidden=true);if(document.pointerLockElement)document.exitPointerLock();
   if(A.on){A.chaseG.gain.setTargetAtTime(.09,A.ctx.currentTime,.05);A.scrape.g.gain.setTargetAtTime(0,A.ctx.currentTime,.1)}
   sfx.roar(h.x,h.z);score.duck();score.riser(.6)}
 /* the death: he rears up, the hook comes down, you hit the ground, he bends over you, then drags you away into the dark */
@@ -920,7 +940,7 @@ function showEnd(){saveLog();const w=L.endKind==='win',s=Math.round(L.endT-L.t0)
   $('endP').textContent=w?'The road is dark and wet and empty. Behind you the gate grinds, and a headlamp turns slowly toward the sound.':L.fusesDone?'You had '+L.fusesDone+' of the fuses. Break his line of sight before you run out of breath, and hide where he can’t see you climb in.':'He hunts by his headlamp. Stay out of the floodlights, switch your torch off when he is close, and keep the wrecks between you.';
   $('sT').textContent=Math.floor(s/60)+':'+String(s%60).padStart(2,'0');$('sF').textContent=L.fusesDone+'/3';$('sS').textContent=L.seenCount;
   $('bAgain').textContent=w?'Another night':'Go again';
-  $('end').hidden=false;['top','stick','btns','lzone'].forEach(id=>$(id).hidden=true);$('bAgain').focus()}
+  $('end').hidden=false;['top','stick','btns','lzone','rzone','rstick'].forEach(id=>$(id).hidden=true);$('bAgain').focus()}
 
 /* ---------- camera ---------- */
 const camP=new T.Vector3(),camL=new T.Vector3();let camInit=false;
@@ -977,7 +997,7 @@ const tr={last:0,frames:0,x:0,z:0,pushT:0,span:0};
 function traceTick(t,rawDt){if(mode!=='play'||L.over||paused)return;tr.frames++;tr.span+=rawDt;const p=L.pl;
   if(Math.hypot(inp.jx,inp.jy)>.5||Math.abs(inp.ky)>0)tr.pushT+=rawDt;
   if(t-tr.last<3)return;const moved=Math.hypot(p.x-tr.x,p.z-tr.z),h=L.hu,fps=Math.round(tr.frames/Math.max(tr.span,.001));
-  log('trace','fps '+fps+'  res '+PR.toFixed(2)+'  pos '+p.x.toFixed(1)+','+p.z.toFixed(1)+'  moved '+moved.toFixed(1)+' m  stick '+inp.jx.toFixed(2)+','+inp.jy.toFixed(2)+(inp.runStick?' RUN':'')+'  thumbs '+(sid!==null?'L':'-')+(lookId!==null?'R':'-')+'  breath '+Math.round(p.stam)+'  him '+h.state+' '+Math.hypot(p.x-h.x,p.z-h.z).toFixed(0)+' m'+(p.hidden?'  HIDING':''));
+  log('trace','fps '+fps+'  res '+PR.toFixed(2)+'  pos '+p.x.toFixed(1)+','+p.z.toFixed(1)+'  moved '+moved.toFixed(1)+' m  stick '+inp.jx.toFixed(2)+','+inp.jy.toFixed(2)+(inp.runStick?' RUN':'')+'  thumbs '+(sid!==null?'L':'-')+(rid!==null?'R':lookId!==null?'r':'-')+'  look '+rin.x.toFixed(2)+','+rin.y.toFixed(2)+'  breath '+Math.round(p.stam)+'  him '+h.state+' '+Math.hypot(p.x-h.x,p.z-h.z).toFixed(0)+' m'+(p.hidden?'  HIDING':''));
   if(tr.pushT>2.4&&moved<.3&&!p.hidden&&L.hold<=0)log('WARN','stick held for '+tr.pushT.toFixed(1)+' s but you moved only '+moved.toFixed(2)+' m (blocked or controls not reaching the game)');
   tr.last=t;tr.frames=0;tr.span=0;tr.x=p.x;tr.z=p.z;tr.pushT=0}
 
@@ -1002,7 +1022,7 @@ function showSet(){Object.keys(SW).forEach(k=>SW[k].setAttribute('aria-checked',
 function saveSet(){try{localStorage.setItem('by_comfort',JSON.stringify(SET))}catch(_){}showSet()}
 Object.keys(SW).forEach(k=>SW[k].addEventListener('click',()=>{SET[k]=!SET[k];saveSet();log('ui','comfort: '+k+' '+(SET[k]?'on':'off'))}));
 $('bCalm').addEventListener('click',()=>{SET.bob=SET.shake=SET.zoom=false;saveSet()});
-function openSet(){log('ui','comfort settings opened');paused=true;showSet();$('sets').hidden=false;if(document.pointerLockElement)document.exitPointerLock();inp.jx=inp.jy=0;inp.runStick=false;$('bSetDone').focus()}
+function openSet(){log('ui','comfort settings opened');paused=true;showSet();$('sets').hidden=false;if(document.pointerLockElement)document.exitPointerLock();inp.jx=inp.jy=0;inp.runStick=false;rRelease();stickRelease();$('bSetDone').focus()}
 function closeSet(){$('sets').hidden=true;paused=false;last=now()}
 $('bSet').addEventListener('click',openSet);$('bSet2').addEventListener('click',openSet);$('bSetDone').addEventListener('click',closeSet);
 addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('sets').hidden)closeSet()});
@@ -1010,13 +1030,13 @@ showSet();
 
 function start(){log('run','--- new run ---');audioInit();score.restore();if(A.ctx&&A.ctx.state==='suspended')A.ctx.resume();
   if(mode!=='title')build();
-  $('title').hidden=true;$('end').hidden=true;['top','stick','btns','lzone'].forEach(id=>$(id).hidden=false);$('hideV').hidden=true;$('bLight').classList.remove('off');
+  $('title').hidden=true;$('end').hidden=true;['top','stick','btns','lzone','rzone','rstick'].forEach(id=>$(id).hidden=false);$('hideV').hidden=true;$('bLight').classList.remove('off');
   grade.uniforms.flash.value=0;grade.uniforms.fc.value.set(0,0,0);mode='play';L.t0=now();camInit=false;L.camYaw=L.pl.yaw;L._cl=0;setObj();
   log('run','gate at column '+L.gi+', fuses at '+L.fuses.map(f=>f.i+','+f.j).join(' / ')+', hiding wrecks '+L.hides.length+', audio '+(A.ctx?A.ctx.state:'off')+', comfort '+JSON.stringify(SET));IN.stickDowns=IN.lookDowns=0;tr.last=now();tr.x=L.pl.x;tr.z=L.pl.z;
-  setTimeout(()=>say('The gate is chained shut behind you. Find the junction boxes. Look for the green lights.',4200),500);setTimeout(()=>say('Left thumb moves. Push it all the way to run. Right thumb looks.',3400),5000)}
+  setTimeout(()=>say('The gate is chained shut behind you. Find the junction boxes. Look for the green lights.',4200),500);setTimeout(()=>say('Left stick moves, push it to the edge to run. Right stick looks around.',3400),5000)}
 addEventListener('pointerdown',()=>{if(L.over&&L.endKind==='lose'&&now()-L.endT>1.2&&$('end').hidden)showEnd()});
 $('bStart').addEventListener('click',start);$('bAgain').addEventListener('click',start);
-['top','stick','btns','lzone'].forEach(id=>$(id).hidden=true);
+['top','stick','btns','lzone','rzone','rstick'].forEach(id=>$(id).hidden=true);
 
 build();
 

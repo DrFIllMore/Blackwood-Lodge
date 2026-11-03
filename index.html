@@ -193,7 +193,7 @@ const ren=new T.WebGLRenderer({canvas:cv,antialias:false,powerPreference:'high-p
 const PR_MAX=Math.min(devicePixelRatio||1,1.5);let PR=PR_MAX;ren.setPixelRatio(PR);
 ren.outputEncoding=T.sRGBEncoding;ren.toneMapping=T.ACESFilmicToneMapping;ren.toneMappingExposure=1.25;
 /* ---------- game log: device, controls, frame rate, events, errors ---------- */
-const VER='2026-11-02f';
+const VER='2026-11-03a';
 const LG={lines:[],t0:Date.now(),dirty:false,prev:null,counts:{}};
 try{LG.prev=JSON.parse(localStorage.getItem('by_log')||'null')}catch(_){}
 function log(kind,msg){const line=((Date.now()-LG.t0)/1000).toFixed(1).padStart(7)+'s  '+kind.padEnd(6)+' '+msg;LG.lines.push(line);if(LG.lines.length>900)LG.lines.splice(0,LG.lines.length-900);LG.dirty=true}
@@ -260,7 +260,7 @@ const ground=new T.Mesh(new T.PlaneGeometry(240,240),MAT.ground);ground.rotation
 const _q=new T.Quaternion(),_e=new T.Euler(),_p=new T.Vector3(),_s=new T.Vector3();
 const mtx=(x,y,z,rx,ry,rz,sx,sy,sz)=>{_e.set(rx,ry,rz);_q.setFromEuler(_e);_p.set(x,y,z);_s.set(sx,sy,sz);return new T.Matrix4().compose(_p,_q,_s)};
 let world=null;
-function inst(geo,mat,list,cols){if(!list.length)return null;const m=new T.InstancedMesh(geo,mat,list.length);list.forEach((a,k)=>m.setMatrixAt(k,a));if(cols){cols.forEach((c,k)=>m.setColorAt(k,c));m.instanceColor.needsUpdate=true}m.instanceMatrix.needsUpdate=true;world.add(m);return m}
+function inst(geo,mat,list,cols){if(!list.length)return null;const m=new T.InstancedMesh(geo,mat,list.length);list.forEach((a,k)=>m.setMatrixAt(k,a));if(cols){cols.forEach((c,k)=>m.setColorAt(k,c));m.instanceColor.needsUpdate=true}m.instanceMatrix.needsUpdate=true;m.frustumCulled=false;world.add(m);return m}
 function beamMesh(color,len,rad,op){const g=new T.ConeGeometry(rad,len,24,1,true);g.translate(0,-len/2,0);const m=new T.Mesh(g,new T.MeshBasicMaterial({color,map:beamTex,transparent:true,opacity:op,blending:T.AdditiveBlending,depthWrite:false,side:T.DoubleSide,fog:true}));return m}
 const cx=i=>i*C+C/2, cz=j=>j*C+C/2;
 
@@ -766,7 +766,8 @@ function updatePlayer(dt,t){
   if(p.hidden){torchRig.visible=false;return}
   torchRig.visible=true;
   // look: drag / mouse handled by input; arrow keys turn too
-  p.yaw-=inp.turn*2.2*dt;p.yaw+=look.dx;p.pitch=clamp(p.pitch+look.dy,-1.25,1.2);look.dx=look.dy=0;
+  p.yawT=(p.yawT??p.yaw)-inp.turn*2.2*dt+look.dx;p.pitchT=clamp((p.pitchT??p.pitch)+look.dy,-1.25,1.2);look.dx=look.dy=0;
+  const lk=1-Math.exp(-dt*28);p.yaw+=(p.yawT-p.yaw)*lk;p.pitch+=(p.pitchT-p.pitch)*lk;
   let mx=clamp(inp.jx+inp.kx,-1,1),my=clamp(inp.jy+inp.ky,-1,1);const m=Math.hypot(mx,my);if(m>1){mx/=m;my/=m}
   if(p.stam<=1)p.tired=true;if(p.tired&&p.stam>30)p.tired=false;
   p.sprint=(inp.sprint||inp.runStick||keys.shift)&&my>.3&&!p.tired;
@@ -779,7 +780,7 @@ function updatePlayer(dt,t){
   const o={x:p.x+p.vx*dt,z:p.z+p.vz*dt};pushOut(o,.36);pushOut(o,.36);p.x=o.x;p.z=o.z;
   const as=Math.hypot(p.vx,p.vz);p.speed=as;p.strafe=lerp(p.strafe||0,mx*clamp(as/3,0,1),Math.min(1,dt*6));
   p.phase+=dt*as*(p.sprint?2.6:2.9);
-  torchL.visible=torchBeam.visible=p.light;torchLens.material.color.set(p.light?'#fff6e0':'#2a2824');torchL.intensity=3.2+Math.sin(t*31)*.08;
+  torchBeam.visible=p.light;torchLens.material.color.set(p.light?'#fff6e0':'#2a2824');torchL.intensity=p.light?3.2+Math.sin(t*31)*.08:0;
   if(as>.6){const k=Math.floor(p.phase/Math.PI);if(k!==p.lastStep){p.lastStep=k;body.side=-body.side;sfx.pstep(p.sprint,body.side);if(p.sprint)makeNoise(p.x,p.z,15)}}
 }
 function makeNoise(x,z,r){const h=L.hu;if(h.state==='chase')return;if(Math.hypot(h.x-x,h.z-z)<r){h.state='investigate';h.tx=x;h.tz=z;h.path=null;h.repath=0;if(r>14)alert2('He heard that',true)}}
@@ -809,7 +810,7 @@ function doAct(a){const p=L.pl,h=L.hu;log('event',{fuse:'pulled a fuse',gate:'wi
     // did he watch you get in?
     h.sawHide=h.state==='chase'&&sees(p.x,p.z,1.4);say(h.sawHide?'He saw you get in.':'You pull the door almost shut. Keep still.',2600);
     const nb=[[0,1],[1,0],[0,-1],[-1,0]].find(([a2,b2])=>!L.wall[i+a2][j+b2])||[0,1];p.hideLook=Math.atan2(-nb[0],-nb[1]);p.hideX=cx(i);p.hideZ=cz(j)}
-  if(a.k==='leave'){const [i,j]=p.hidden;const nb=[[0,1],[1,0],[0,-1],[-1,0]].find(([a2,b2])=>!L.wall[i+a2][j+b2])||[0,1];p.x=cx(i+nb[0]);p.z=cz(j+nb[1]);p.yaw=Math.atan2(-nb[0],-nb[1]);p.pitch=-.05;p.hidden=null;snd.door();$('hideV').hidden=true;L.camYaw=p.yaw}
+  if(a.k==='leave'){const [i,j]=p.hidden;const nb=[[0,1],[1,0],[0,-1],[-1,0]].find(([a2,b2])=>!L.wall[i+a2][j+b2])||[0,1];p.x=cx(i+nb[0]);p.z=cz(j+nb[1]);p.yaw=p.yawT=Math.atan2(-nb[0],-nb[1]);p.pitch=p.pitchT=-.05;p.hidden=null;snd.door();$('hideV').hidden=true;L.camYaw=p.yaw}
 }
 
 /* ---------- the yard man ---------- */
@@ -892,7 +893,7 @@ function killScene(t){const K=L.kill,te=t-L.endT,H=L.H,h=L.hu;
   const wk=te>3.2&&te<4.9?Math.sin(te*7):0;H.hipL.rotation.x=wk*.35;H.hipR.rotation.x=-wk*.35;
   H.lamp.intensity=te>1.6&&te<3.2?9:7;
   // your torch: in your hand until the hit, then lying on the gravel lighting him from below
-  torchL.visible=te<.62&&L.pl.light;K.dropped.intensity=te<.75?0:lerp(0,3.2,clamp((te-.75)/.2,0,1))*(1+Math.sin(te*37)*.04);K.dropped.target.position.set(hx,1.5,hz);
+  torchL.intensity=te<.62&&L.pl.light?3.2:0;K.dropped.intensity=te<.75?0:lerp(0,3.2,clamp((te-.75)/.2,0,1))*(1+Math.sin(te*37)*.04);K.dropped.target.position.set(hx,1.5,hz);
   // sound beats of the sequence, each fired once
   const once=(k,at2,fn)=>{if(te>=at2&&!K.sfx[k]){K.sfx[k]=1;fn()}};
   once('hit',.62,()=>{sfx.hit();score.boom();score.cluster(4.6);if(A.on)A.chaseG.gain.setTargetAtTime(0,A.ctx.currentTime,.4)});once('torch',.95,()=>sfx.clatter());
@@ -939,13 +940,15 @@ function updateCamera(dt,t,fear){
 }
 
 /* ---------- loop ---------- */
-let mode='title',last=now(),nextBeat=0,paused=false;const perf={n:0,sum:0};
+let mode='title',last=now(),nextBeat=0,paused=false;const perf={n:0,sum:0,slow:0,fast:0};
 function frame(){requestAnimationFrame(frame);try{frameBody()}catch(err){logOnce('f:'+err.message,'ERROR','frame: '+err.message+' '+(err.stack||'').split('\n')[1]);}}
 function frameBody(){
   const t=now(),rawDt=t-last,dt=Math.min(.1,rawDt);last=t;let fear=0;
   // every 2 s: if frames are slow, render fewer pixels; if there's headroom, render more
-  perf.n++;perf.sum+=rawDt;if(perf.sum>2){const avg=perf.sum/perf.n;perf.n=0;perf.sum=0;
-    if(avg>1/42&&PR>.5){PR=Math.max(.5,PR-.15);resize();log('perf','slow ('+Math.round(1/avg)+' fps), resolution down to '+PR.toFixed(2))}else if(avg<1/57&&PR<PR_MAX){PR=Math.min(PR_MAX,PR+.1);resize();log('perf','smooth ('+Math.round(1/avg)+' fps), resolution up to '+PR.toFixed(2))}}
+  perf.n++;perf.sum+=rawDt;if(perf.sum>3){const avg=perf.sum/perf.n;perf.n=0;perf.sum=0;const fps=1/avg;
+    perf.slow=fps<30?perf.slow+1:0;perf.fast=fps>57?perf.fast+1:0;
+    if(perf.slow>=2&&PR>.5){PR=Math.max(.5,PR-.2);resize();perf.slow=0;log('perf','slow ('+Math.round(fps)+' fps), resolution down to '+PR.toFixed(2))}
+    else if(perf.fast>=4&&PR<PR_MAX){PR=Math.min(PR_MAX,PR+.1);resize();perf.fast=0;log('perf','smooth ('+Math.round(fps)+' fps), resolution up to '+PR.toFixed(2))}}
   if(mode==='play'&&!L.over&&!paused){
     const n=dt>.05?2:1;for(let i=0;i<n;i++)updatePlayer(dt/n,t);updateAction(dt,t);let d=30;for(let i=0;i<n&&!L.over;i++)d=updateHunter(dt/n,t)??30;
     fear=clamp((18-d)/14,0,1)*(L.hu.state==='chase'?1:.6);

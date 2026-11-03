@@ -216,7 +216,7 @@ const ren=new T.WebGLRenderer({canvas:cv,antialias:false,powerPreference:'high-p
 const PR_MAX=Math.min(devicePixelRatio||1,1.5);let PR=PR_MAX;ren.setPixelRatio(PR);
 ren.outputEncoding=T.sRGBEncoding;ren.toneMapping=T.ACESFilmicToneMapping;ren.toneMappingExposure=1.25;
 /* ---------- game log: device, controls, frame rate, events, errors ---------- */
-const VER='2026-11-03d';
+const VER='2026-11-03e';
 const LG={lines:[],t0:Date.now(),dirty:false,prev:null,counts:{}};
 try{LG.prev=JSON.parse(localStorage.getItem('by_log')||'null')}catch(_){}
 function log(kind,msg){const line=((Date.now()-LG.t0)/1000).toFixed(1).padStart(7)+'s  '+kind.padEnd(6)+' '+msg;LG.lines.push(line);if(LG.lines.length>900)LG.lines.splice(0,LG.lines.length-900);LG.dirty=true}
@@ -735,7 +735,6 @@ const stick=$('stick'),knob=$('knob'),zone=$('lzone');let sid=null,sc=null;let l
 const R_STICK=56;
 const mv=e=>{if(e.pointerId!==sid)return;let dx=e.clientX-sc.x,dy=e.clientY-sc.y;const d=Math.hypot(dx,dy);
   // pushing past the ring drags the base along, so the thumb never runs out of room
-  if(d>R_STICK*1.35){const k=(d-R_STICK*1.35)/d;sc.x+=dx*k;sc.y+=dy*k;stick.style.left=(sc.x-70)+'px';stick.style.top=(sc.y-70)+'px';dx=e.clientX-sc.x;dy=e.clientY-sc.y}
   const dd=Math.hypot(dx,dy),c=Math.min(1,R_STICK/Math.max(dd,1));knob.style.transform=`translate(${dx*c}px,${dy*c}px)`;
   inp.jx=clamp(dx/R_STICK,-1,1);inp.jy=clamp(-dy/R_STICK,-1,1);
   inp.runStick=dd>R_STICK*.92&&-dy>dd*.6;stick.classList.toggle('run',inp.runStick)};
@@ -748,7 +747,6 @@ const up=e=>{if(e.pointerType==='mouse'){lookUp(e);return}if(e.pointerId!==sid)r
 const IN={stickDowns:0,lookDowns:0,rDowns:0};
 const rzone=$('rzone'),rstick=$('rstick'),rknob=$('rknob');let rid=null,rsc=null;const rin={x:0,y:0};
 function rMove(e){if(e.pointerId!==rid)return;let dx=e.clientX-rsc.x,dy=e.clientY-rsc.y;const d=Math.hypot(dx,dy);
-  if(d>R_STICK*1.35){const k=(d-R_STICK*1.35)/d;rsc.x+=dx*k;rsc.y+=dy*k;rstick.style.left=(rsc.x-70)+'px';rstick.style.top=(rsc.y-70)+'px';dx=e.clientX-rsc.x;dy=e.clientY-rsc.y}
   const dd=Math.hypot(dx,dy),c=Math.min(1,R_STICK/Math.max(dd,1));rknob.style.transform=`translate(${dx*c}px,${dy*c}px)`;rin.x=clamp(dx/R_STICK,-1,1);rin.y=clamp(-dy/R_STICK,-1,1)}
 function rDown(e){audioInit();if(rid!==null){logOnce('stuckr','input','look stick: an earlier touch never ended, taking over');rRelease()}rid=e.pointerId;IN.rDowns++;if(IN.rDowns<=2)log('input','right thumb (look stick) down');
   rsc={x:e.clientX,y:e.clientY};rstick.style.left=(rsc.x-70)+'px';rstick.style.top=(rsc.y-70)+'px';rstick.style.right='auto';rstick.style.bottom='auto';rstick.classList.add('on');rMove(e)}
@@ -800,11 +798,17 @@ function updatePlayer(dt,t){
   if(p.hidden){torchRig.visible=false;return}
   torchRig.visible=true;
   // look: drag / mouse handled by input; arrow keys turn too
-  const cv2=v=>{const a=Math.abs(v)<.08?0:(Math.abs(v)-.08)/.92;return Math.sign(v)*a*a*(.35+.65*a)};
-  p.yawT=(p.yawT??p.yaw)-inp.turn*2.2*dt+look.dx-cv2(rin.x)*3.0*SET.look*dt;p.pitchT=clamp((p.pitchT??p.pitch)+look.dy+cv2(rin.y)*1.6*SET.look*dt,-1.25,1.2);look.dx=look.dy=0;
+  // stick response: a dead zone, then a soft curve so most of the throw is fine aiming
+  const cv2=v=>{const a=Math.abs(v)<.12?0:(Math.abs(v)-.12)/.88;return Math.sign(v)*Math.pow(a,2.2)};
+  const tYaw=-(cv2(rin.x)*2.2*SET.look+inp.turn*2.0),tPit=cv2(rin.y)*1.1*SET.look;
+  // turning speed eases toward the target: ramps up over ~0.3 s, settles quickly when you ease off or let go
+  const ease2=(v,t2)=>v+(t2-v)*Math.min(1,dt*(Math.abs(t2)>Math.abs(v)?3.2:16));
+  p.yawV=ease2(p.yawV||0,tYaw);p.pitV=ease2(p.pitV||0,tPit);
+  if(Math.abs(p.yawV)<.002&&tYaw===0)p.yawV=0;if(Math.abs(p.pitV)<.002&&tPit===0)p.pitV=0;
+  // drags and the mouse move the view directly, but one jerky frame can't fling it
+  const lim=.09;p.yaw+=p.yawV*dt+clamp(look.dx,-lim,lim);p.pitch=clamp(p.pitch+p.pitV*dt+clamp(look.dy,-lim,lim),-.95,.85);look.dx=look.dy=0;p.yawT=p.yaw;p.pitchT=p.pitch;
   // while you walk and aren't aiming up or down, the view drifts back to level
-  if(rid===null&&lookId===null&&Math.hypot(inp.jx+inp.kx,inp.jy+inp.ky)>.3)p.pitchT+=(-.05-p.pitchT)*Math.min(1,dt*1.2);
-  const lk=1-Math.exp(-dt*28);p.yaw+=(p.yawT-p.yaw)*lk;p.pitch+=(p.pitchT-p.pitch)*lk;
+  if(rid===null&&lookId===null&&Math.hypot(inp.jx+inp.kx,inp.jy+inp.ky)>.3)p.pitch+=(-.05-p.pitch)*Math.min(1,dt*1.2);
   let mx=clamp(inp.jx+inp.kx,-1,1),my=clamp(inp.jy+inp.ky,-1,1);const m=Math.hypot(mx,my);if(m>1){mx/=m;my/=m}
   if(p.stam<=1)p.tired=true;if(p.tired&&p.stam>30)p.tired=false;
   p.sprint=(inp.sprint||inp.runStick||keys.shift)&&my>.3&&!p.tired;

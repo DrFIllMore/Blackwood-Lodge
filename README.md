@@ -20,13 +20,13 @@ You came over the fence for parts. At midnight the gate locked itself, and the m
 - Climb into an open wreck to hide. He won't find you unless he watched you get in.
 - Pulling a fuse makes noise, kills a floodlight and makes him faster.
 
-## Comfort settings
+## Settings
 
-If moving around makes you queasy, tap **Comfort** (top right of the title screen, or under the breath bar during play). You can switch off head bob, screen shake and sprint zoom. The game pauses while the panel is open, and your choices are remembered on that device.
+Tap **Settings** (top right of the title screen, or under the breath bar during play). **Look speed** sets how fast the right stick, a drag or the mouse turns your view. Under **Comfort**, if moving around makes you queasy, you can switch off head bob, screen shake and sprint zoom. The game pauses while the panel is open, and your choices are remembered on that device.
 
 ## Reporting a problem
 
-Open **Comfort → Game log** (or **Game log** on the end screen). It records your device, controls, frame rate, events and any errors. Type what went wrong, tap **Copy log**, and paste it to Claude. The previous session's log is kept too, so you can still copy it after a reload.
+Open **Settings → Game log** (or **Game log** on the end screen). It records your device, controls, frame rate, events and any errors. Type what went wrong, tap **Copy log**, and paste it to Claude. The previous session's log is kept too, so you can still copy it after a reload.
 
 ## Files
 

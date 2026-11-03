@@ -103,6 +103,15 @@ body{background:var(--ink);color:var(--bone);font-family:var(--font-u);overflow:
 #logN{width:100%;box-sizing:border-box;height:44px;padding:0 12px;background:#0a0b0c;color:var(--bone);border:1px solid var(--line);font:15px var(--font-b)}
 #logN:focus-visible,#logT:focus-visible{outline:2px solid var(--hazard);outline-offset:1px}
 .endlinks{display:flex;gap:10px;flex-wrap:wrap}
+/* look speed slider */
+.lookopt>div{flex:1}
+.lookopt output{font:600 15px var(--font-u);color:var(--hazard);margin-left:8px;font-variant-numeric:tabular-nums}
+#oLook{width:100%;margin:10px 0 2px;accent-color:#f2c230;height:28px}
+#oLook:focus-visible{outline:2px solid var(--hazard);outline-offset:3px}
+.ends{display:flex;justify-content:space-between}.ends i{font:400 12px var(--font-b);font-style:normal;color:var(--steel)}
+.sheet .sub{margin:4px 0 -8px;font:600 11px/1 var(--font-u);letter-spacing:.24em;text-transform:uppercase;color:var(--hazard)}
+#sets{padding-block:calc(env(safe-area-inset-top,0px) + 14px) calc(env(safe-area-inset-bottom,0px) + 14px)}
+#sets .sheet{max-height:100%;box-sizing:border-box;overflow-y:auto}
 @media (prefers-reduced-motion:reduce){#msg,#alert,.sw::after{transition:none}}
 </style>
 
@@ -112,7 +121,7 @@ body{background:var(--ink);color:var(--bone);font-family:var(--font-u);overflow:
 
 <div class="hud" id="top">
   <div class="obj"><span class="lbl">Objective</span><b id="objT">Pull the 3 fuses</b><div class="fuses"><i></i><i></i><i></i></div></div>
-  <div class="stam"><span class="lbl">Breath</span><span class="bar" id="stB"><i id="stI"></i></span><button id="bSet" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>Comfort</button></div>
+  <div class="stam"><span class="lbl">Breath</span><span class="bar" id="stB"><i id="stI"></i></span><button id="bSet" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>Settings</button></div>
 </div>
 <div class="hud" id="alert"></div>
 <div class="hud" id="msg"></div>
@@ -127,7 +136,7 @@ body{background:var(--ink);color:var(--bone);font-family:var(--font-u);overflow:
 </div>
 
 <section class="scr" id="title">
-  <button id="bSet2" class="pill" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>Comfort</button>
+  <button id="bSet2" class="pill" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>Settings</button>
   <div class="tape"></div>
   <h1>Breaker's<br><em>Yard</em></h1>
   <p>You came over the fence for parts. At midnight the gate locked itself, and the man who runs the yard is still here. The gate runs off the yard's power. Pull three fuses from the junction boxes, wire them into the gate panel, and get out.</p>
@@ -143,8 +152,12 @@ body{background:var(--ink);color:var(--bone);font-family:var(--font-u);overflow:
 
 <div id="sets" hidden role="dialog" aria-modal="true" aria-labelledby="setsH">
   <div class="sheet">
-    <h3 id="setsH">Comfort</h3>
-    <p class="note">If moving around makes you feel queasy, switch these off. The game is paused while this is open.</p>
+    <h3 id="setsH">Settings</h3>
+    <p class="note">The game is paused while this is open. Your choices are kept on this device.</p>
+    <div class="opt lookopt"><div><b>Look speed <output id="oLookV" for="oLook">1.0×</output></b><span>How fast the right stick, a drag or the mouse turns your view.</span>
+      <input id="oLook" type="range" min="0.3" max="2.5" step="0.1" value="1" aria-label="Look speed"><span class="ends"><i>Slower</i><i>Faster</i></span></div></div>
+    <p class="sub">Comfort</p>
+    <p class="note">If moving around makes you feel queasy, switch these off.</p>
     <div class="opt"><div><b>Head bob</b><span>Your view bounces and sways with each step, more when you run.</span></div><button class="sw" id="oBob" type="button" role="switch" aria-checked="true" aria-label="Head bob"></button></div>
     <div class="opt"><div><b>Screen shake</b><span>The view trembles when he's close.</span></div><button class="sw" id="oShake" type="button" role="switch" aria-checked="true" aria-label="Screen shake"></button></div>
     <div class="opt"><div><b>Sprint zoom</b><span>The view widens while you run.</span></div><button class="sw" id="oZoom" type="button" role="switch" aria-checked="true" aria-label="Sprint zoom"></button></div>
@@ -199,7 +212,7 @@ const ren=new T.WebGLRenderer({canvas:cv,antialias:false,powerPreference:'high-p
 const PR_MAX=Math.min(devicePixelRatio||1,1.5);let PR=PR_MAX;ren.setPixelRatio(PR);
 ren.outputEncoding=T.sRGBEncoding;ren.toneMapping=T.ACESFilmicToneMapping;ren.toneMappingExposure=1.25;
 /* ---------- game log: device, controls, frame rate, events, errors ---------- */
-const VER='2026-11-03b';
+const VER='2026-11-03c';
 const LG={lines:[],t0:Date.now(),dirty:false,prev:null,counts:{}};
 try{LG.prev=JSON.parse(localStorage.getItem('by_log')||'null')}catch(_){}
 function log(kind,msg){const line=((Date.now()-LG.t0)/1000).toFixed(1).padStart(7)+'s  '+kind.padEnd(6)+' '+msg;LG.lines.push(line);if(LG.lines.length>900)LG.lines.splice(0,LG.lines.length-900);LG.dirty=true}
@@ -772,10 +785,10 @@ function readKeys(){inp.kx=(keys.d?1:0)-(keys.a?1:0);inp.ky=(keys.w||keys.arrowu
 // look: drag anywhere that isn't a control (phone), or the mouse once the pointer is locked (computer)
 function lookDown(e){if(mode!=='play')return;audioInit();if(e.pointerType==='mouse'){if(document.pointerLockElement!==cv&&cv.requestPointerLock){try{const r2=cv.requestPointerLock();if(r2&&r2.catch)r2.catch(()=>{})}catch(_){}}if(document.pointerLockElement===cv)return}
   if(lookId!==null)logOnce('stucklook','input','right thumb: an earlier touch never ended, taking over');lookId=e.pointerId;IN.lookDowns++;if(IN.lookDowns<=2)log('input','right thumb (look) down');lx=e.clientX;ly=e.clientY;try{e.target.setPointerCapture&&e.target.setPointerCapture(lookId)}catch(_){}}
-function lookMove(e){if(e.pointerId!==lookId)return;const s=e.pointerType==='mouse'?.0035:.0062;look.dx-=(e.clientX-lx)*s;look.dy-=(e.clientY-ly)*s;lx=e.clientX;ly=e.clientY}
+function lookMove(e){if(e.pointerId!==lookId)return;const s=(e.pointerType==='mouse'?.0035:.0062)*SET.look;look.dx-=(e.clientX-lx)*s;look.dy-=(e.clientY-ly)*s;lx=e.clientX;ly=e.clientY}
 function lookUp(e){if(e.pointerId===lookId)lookId=null}
 if(window.PointerEvent){cv.addEventListener('pointerdown',lookDown);cv.addEventListener('pointermove',lookMove);cv.addEventListener('pointerup',lookUp);cv.addEventListener('pointercancel',lookUp)}
-document.addEventListener('mousemove',e=>{if(document.pointerLockElement===cv&&mode==='play'){look.dx-=e.movementX*.0024;look.dy-=e.movementY*.0024}});
+document.addEventListener('mousemove',e=>{if(document.pointerLockElement===cv&&mode==='play'){look.dx-=e.movementX*.0024*SET.look;look.dy-=e.movementY*.0024*SET.look}});
 
 /* ---------- player ---------- */
 function updatePlayer(dt,t){
@@ -784,7 +797,7 @@ function updatePlayer(dt,t){
   torchRig.visible=true;
   // look: drag / mouse handled by input; arrow keys turn too
   const cv2=v=>{const a=Math.abs(v)<.08?0:(Math.abs(v)-.08)/.92;return Math.sign(v)*a*a*(.35+.65*a)};
-  p.yawT=(p.yawT??p.yaw)-inp.turn*2.2*dt+look.dx-cv2(rin.x)*3.0*dt;p.pitchT=clamp((p.pitchT??p.pitch)+look.dy+cv2(rin.y)*1.6*dt,-1.25,1.2);look.dx=look.dy=0;
+  p.yawT=(p.yawT??p.yaw)-inp.turn*2.2*dt+look.dx-cv2(rin.x)*3.0*SET.look*dt;p.pitchT=clamp((p.pitchT??p.pitch)+look.dy+cv2(rin.y)*1.6*SET.look*dt,-1.25,1.2);look.dx=look.dy=0;
   // while you walk and aren't aiming up or down, the view drifts back to level
   if(rid===null&&lookId===null&&Math.hypot(inp.jx+inp.kx,inp.jy+inp.ky)>.3)p.pitchT+=(-.05-p.pitchT)*Math.min(1,dt*1.2);
   const lk=1-Math.exp(-dt*28);p.yaw+=(p.yawT-p.yaw)*lk;p.pitch+=(p.pitchT-p.pitch)*lk;
@@ -1015,14 +1028,16 @@ $('bLogCopy').addEventListener('click',()=>{const n=$('logN').value.trim();if(n)
 $('bLogClear').addEventListener('click',()=>{LG.lines=[];LG.prev=null;try{localStorage.removeItem('by_log')}catch(_){}log('ui','log cleared');$('logT').value=logText()});
 
 /* ---------- comfort settings (kept on this device) ---------- */
-const SET={bob:true,shake:true,zoom:true};
+const SET={bob:true,shake:true,zoom:true,look:1};
 try{Object.assign(SET,JSON.parse(localStorage.getItem('by_comfort')||'{}'))}catch(_){}
 const SW={bob:$('oBob'),shake:$('oShake'),zoom:$('oZoom')};
-function showSet(){Object.keys(SW).forEach(k=>SW[k].setAttribute('aria-checked',SET[k]?'true':'false'))}
+function showSet(){Object.keys(SW).forEach(k=>SW[k].setAttribute('aria-checked',SET[k]?'true':'false'));SET.look=clamp(+SET.look||1,.3,2.5);$('oLook').value=SET.look;$('oLookV').textContent=SET.look.toFixed(1)+'×'}
 function saveSet(){try{localStorage.setItem('by_comfort',JSON.stringify(SET))}catch(_){}showSet()}
 Object.keys(SW).forEach(k=>SW[k].addEventListener('click',()=>{SET[k]=!SET[k];saveSet();log('ui','comfort: '+k+' '+(SET[k]?'on':'off'))}));
+$('oLook').addEventListener('input',e=>{SET.look=+e.target.value;$('oLookV').textContent=SET.look.toFixed(1)+'×'});
+$('oLook').addEventListener('change',()=>{saveSet();log('ui','look speed '+SET.look.toFixed(1))});
 $('bCalm').addEventListener('click',()=>{SET.bob=SET.shake=SET.zoom=false;saveSet()});
-function openSet(){log('ui','comfort settings opened');paused=true;showSet();$('sets').hidden=false;if(document.pointerLockElement)document.exitPointerLock();inp.jx=inp.jy=0;inp.runStick=false;rRelease();stickRelease();$('bSetDone').focus()}
+function openSet(){log('ui','settings opened');paused=true;showSet();$('sets').hidden=false;if(document.pointerLockElement)document.exitPointerLock();inp.jx=inp.jy=0;inp.runStick=false;rRelease();stickRelease();$('bSetDone').focus()}
 function closeSet(){$('sets').hidden=true;paused=false;last=now()}
 $('bSet').addEventListener('click',openSet);$('bSet2').addEventListener('click',openSet);$('bSetDone').addEventListener('click',closeSet);
 addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('sets').hidden)closeSet()});
